@@ -5,6 +5,7 @@ import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
 import 'masonry_screen.dart';
+import 'unit_converter_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -157,11 +158,18 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   DashboardCard(
                     title: 'Unit Converter',
-                    subtitle: 'Engineering units',
+                    subtitle: 'Length • Area • Volume • Weight',
                     icon: Icons.swap_horiz_rounded,
                     color: colorScheme.primary,
                     compact: true,
-                    onTap: () => _showUnavailable(context, 'Unit converter'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UnitConverterScreen(),
+                        ),
+                      );
+                    },
                   ),
                   DashboardCard(
                     title: 'Settings',
