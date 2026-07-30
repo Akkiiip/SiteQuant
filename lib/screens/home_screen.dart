@@ -4,6 +4,7 @@ import '../widgets/app_scaffold.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
+import 'masonry_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -64,12 +65,17 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   DashboardCard(
-                    title: 'Brickwork',
-                    subtitle: '🚧 Coming Soon',
-                    icon: Icons.grid_view_rounded,
+                    title: 'Masonry',
+                    subtitle: 'Brick • AAC • Block • Laterite',
+                    icon: Icons.view_quilt_rounded,
                     color: colorScheme.primary,
                     compact: true,
-                    onTap: () => _showUnavailable(context, 'Brickwork'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MasonryScreen()),
+                      );
+                    },
                   ),
                   DashboardCard(
                     title: 'Plaster',
