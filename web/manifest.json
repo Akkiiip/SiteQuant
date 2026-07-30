@@ -1,6 +1,6 @@
 {
-    "name": "site_quant",
-    "short_name": "site_quant",
+    "name": "SiteQuant",
+    "short_name": "SiteQuant",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

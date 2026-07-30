@@ -1,88 +1,56 @@
 import 'package:flutter/material.dart';
 
 import '../models/concrete_result.dart';
+import '../services/concrete_calculator.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/material_takeoff_card.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/result_summary_card.dart';
 
 class ConcreteResultScreen extends StatelessWidget {
   final ConcreteResult result;
+  final String structure;
+  final String grade;
+  final String mixRatio;
+  final double wcRatio;
+  final double dryVolume;
 
-  const ConcreteResultScreen({super.key, required this.result});
-
-  Widget resultCard({
-    required BuildContext context,
-    required String title,
-    required List<String> values,
-    required IconData icon,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: colorScheme.primary, size: 24),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  ...values.map(
-                    (value) => Padding(
-                      padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(
-                        value,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  const ConcreteResultScreen({
+    super.key,
+    required this.result,
+    required this.structure,
+    required this.grade,
+    required this.mixRatio,
+    required this.wcRatio,
+    required this.dryVolume,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Calculation Result')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+    return AppScaffold(
+      title: 'Calculation Result',
+      bodyBuilder: (context, padding) => ListView(
+        padding: padding,
         children: [
-          Text('Material takeoff', style: textTheme.headlineMedium),
+          Text('Material Takeoff', style: textTheme.headlineMedium),
           const SizedBox(height: 5),
           Text(
             'Estimated quantities based on your selected concrete mix.',
             style: textTheme.bodyMedium,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Card(
             color: colorScheme.primary,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               child: Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 46,
+                    height: 46,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(14),
@@ -92,13 +60,13 @@ class ConcreteResultScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 15),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Concrete volume',
+                          'Concrete Volume',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.78),
                             fontSize: 13,
@@ -106,10 +74,10 @@ class ConcreteResultScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${result.volume.toStringAsFixed(3)} m³',
+                          '${result.volume.toStringAsFixed(2)} m³',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 25,
+                            fontSize: 24,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -120,51 +88,101 @@ class ConcreteResultScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          MaterialTakeoffCard(result: result),
+          const SizedBox(height: 12),
+          ResultSummaryCard(
+            structure: structure,
+            grade: grade,
+            mixRatio: mixRatio,
+            wcRatio: wcRatio,
+            volume: result.volume,
+            dryVolume: dryVolume,
+          ),
+          const SizedBox(height: 12),
+          _AboutCalculation(wcRatio: wcRatio),
           const SizedBox(height: 16),
-          resultCard(
-            context: context,
-            title: 'Cement',
-            values: [
-              '${result.cementBags.toStringAsFixed(1)} bags',
-              '${result.cementKg.toStringAsFixed(1)} kg',
+          PrimaryButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icons.restart_alt_rounded,
+            label: 'New Calculation',
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: null,
+                  icon: const Icon(Icons.share_outlined),
+                  label: const Text('Share'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: null,
+                  icon: const Icon(Icons.bookmark_add_outlined),
+                  label: const Text('Save'),
+                ),
+              ),
             ],
-            icon: Icons.foundation_rounded,
           ),
-          const SizedBox(height: 12),
-          resultCard(
-            context: context,
-            title: 'Sand',
-            values: [
-              '${result.sandM3.toStringAsFixed(3)} m³',
-              '${result.sandBrass.toStringAsFixed(2)} brass',
-            ],
-            icon: Icons.landscape_rounded,
+        ],
+      ),
+    );
+  }
+}
+
+class _AboutCalculation extends StatelessWidget {
+  final double wcRatio;
+
+  const _AboutCalculation({required this.wcRatio});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ExpansionTile(
+        title: const Text('About Calculation'),
+        leading: const Icon(Icons.info_outline_rounded),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        children: [
+          _CalculationDetail(
+            label: 'Dry Volume Factor',
+            value: ConcreteCalculator.dryVolumeFactor.toString(),
           ),
-          const SizedBox(height: 12),
-          resultCard(
-            context: context,
-            title: 'Aggregate',
-            values: [
-              '${result.aggregateM3.toStringAsFixed(3)} m³',
-              '${result.aggregateBrass.toStringAsFixed(2)} brass',
-            ],
-            icon: Icons.grain_rounded,
+          _CalculationDetail(
+            label: 'Cement Density',
+            value: '${ConcreteCalculator.cementDensity.toStringAsFixed(0)} kg/m³',
           ),
-          const SizedBox(height: 12),
-          resultCard(
-            context: context,
-            title: 'Water',
-            values: ['${result.waterLitres.round()} litres'],
-            icon: Icons.water_drop_rounded,
+          _CalculationDetail(
+            label: 'Bag Weight',
+            value: '${ConcreteCalculator.bagWeight.toStringAsFixed(0)} kg',
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              // We'll implement cost estimation next.
-            },
-            icon: const Icon(Icons.request_quote_rounded),
-            label: const Text('Estimate material cost'),
+          _CalculationDetail(
+            label: 'Water-Cement Ratio',
+            value: wcRatio.toStringAsFixed(2),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalculationDetail extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _CalculationDetail({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+          const SizedBox(width: 12),
+          Text(value, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );

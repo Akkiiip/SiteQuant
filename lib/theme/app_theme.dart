@@ -70,15 +70,35 @@ class AppTheme {
       ),
     ),
     chipTheme: ChipThemeData(
-      side: const BorderSide(color: Color(0xFFD7DFEA)),
-      selectedColor: const Color(0xFFE4EEFC),
+      backgroundColor: Colors.white,
+      selectedColor: primaryBlue,
+      side: const BorderSide(color: primaryBlue),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+      labelStyle: const TextStyle(
+        color: ink,
+        fontWeight: FontWeight.w600,
+      ),
+      secondaryLabelStyle: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w700,
+      ),
+      showCheckmark: false,
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      textStyle: TextStyle(color: ink),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
+      backgroundColor: ink,
+      contentTextStyle: const TextStyle(color: Colors.white),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
+    dividerTheme: const DividerThemeData(
+      color: Color(0xFFDCE4EE),
+      space: 1,
+      thickness: 1,
+    ),
+    iconTheme: const IconThemeData(color: primaryBlue),
     textTheme: const TextTheme(
       headlineMedium: TextStyle(
         fontWeight: FontWeight.w700,

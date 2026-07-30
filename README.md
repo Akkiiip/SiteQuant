@@ -1,4 +1,4 @@
-# site_quant
+# SiteQuant
 
 A new Flutter project.
 

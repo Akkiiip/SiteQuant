@@ -20,5 +20,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Concrete Calculator'), findsOneWidget);
+    expect(find.text('Custom Volume'), findsWidgets);
+    expect(find.text('Volume'), findsOneWidget);
+    expect(find.text('Wall'), findsNothing);
   });
 }
