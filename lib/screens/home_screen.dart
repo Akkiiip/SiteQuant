@@ -5,6 +5,7 @@ import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
 import 'masonry_screen.dart';
+import 'plaster_screen.dart';
 import 'unit_converter_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -79,12 +80,17 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                   DashboardCard(
-                    title: 'Plaster',
-                    subtitle: '🚧 Coming Soon',
+                    title: 'Plaster Calculator',
+                    subtitle: 'Wall • Ceiling',
                     icon: Icons.format_paint_rounded,
                     color: colorScheme.primary,
                     compact: true,
-                    onTap: () => _showUnavailable(context, 'Plaster'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PlasterScreen()),
+                      );
+                    },
                   ),
                   DashboardCard(
                     title: 'Steel Weight',
