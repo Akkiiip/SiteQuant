@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/concrete_calculator.dart';
 import '../services/volume_calculator.dart';
+import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/primary_button.dart';
@@ -206,6 +207,7 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       return;
     }
 
+    final system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     final values = <_InputKey, double>{};
     for (final field in _selectedStructure.fields) {
       final rawValue = _controllers[field.key]!.text.trim();
@@ -218,7 +220,11 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
         _showValidationMessage('${field.label} must be a whole number.');
         return;
       }
-      values[field.key] = value;
+      values[field.key] = field.key == _InputKey.quantity
+          ? value
+          : field.key == _InputKey.volume
+              ? MeasurementPreferences.toCubicMetres(value, system)
+              : MeasurementPreferences.toMetres(value, system);
     }
 
     final wcRatio = double.tryParse(_wcController.text.trim());

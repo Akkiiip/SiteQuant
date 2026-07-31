@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/masonry_result.dart';
 import '../services/masonry_calculator.dart';
+import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/primary_button.dart';
@@ -135,9 +136,10 @@ class _MasonryScreenState extends State<MasonryScreen> {
       _showError('Enter a valid mortar ratio, for example 1 : 6.');
       return;
     }
+    final system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     final result = MasonryCalculator.calculate(
-      length: length,
-      height: height,
+      length: MeasurementPreferences.toMetres(length, system),
+      height: MeasurementPreferences.toMetres(height, system),
       walls: walls.round(),
       thicknessMm: thickness,
       unitSize: unitSize,

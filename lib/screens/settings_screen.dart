@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../widgets/app_scaffold.dart';
 import '../widgets/section_header.dart';
+import '../services/measurement_system.dart';
+import '../widgets/measurement_system_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -17,7 +19,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppScaffold(title: 'Settings', bodyBuilder: (context, padding) => ListView(padding: padding, children: [
     const SectionHeader(title: 'General'), const SizedBox(height: 10),
-    _Card(children: [_Tile(icon: Icons.dark_mode_outlined, title: 'Theme', subtitle: 'System', onTap: () => _message(context, 'Theme settings coming soon.')), _Tile(icon: Icons.straighten_rounded, title: 'Units', subtitle: 'Metric', onTap: () => _message(context, 'Imperial units coming soon.'))]), const SizedBox(height: 24),
+    _Card(children: [_Tile(icon: Icons.dark_mode_outlined, title: 'Theme', subtitle: 'System', onTap: () => _message(context, 'Theme settings coming soon.')), ValueListenableBuilder<MeasurementSystem?>(valueListenable: MeasurementPreferences.system, builder: (context, system, _) => _Tile(icon: Icons.straighten_rounded, title: 'Measurement System', subtitle: '${(system ?? MeasurementSystem.metric).label}\nYou can change this anytime.', onTap: () => showMeasurementSystemDialog(context, initial: system ?? MeasurementSystem.metric)))]), const SizedBox(height: 24),
     const SectionHeader(title: 'About'), const SizedBox(height: 10),
     _Card(children: [_Tile(icon: Icons.info_outline_rounded, title: 'About SiteQuant', onTap: () => _about(context)), _Tile(icon: Icons.privacy_tip_outlined, title: 'Privacy Policy', onTap: () => _message(context, 'Privacy Policy will be available before Play Store release.')), _Tile(icon: Icons.email_outlined, title: 'Contact Developer', onTap: () => _message(context, 'Contact feature coming soon.')), const _Tile(icon: Icons.info_rounded, title: 'Version', subtitle: 'v1.0.0')]), const SizedBox(height: 24),
     const SectionHeader(title: 'Support'), const SizedBox(height: 10),

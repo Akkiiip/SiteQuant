@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/plaster_result.dart';
 import '../services/plaster_calculator.dart';
+import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/primary_button.dart';
@@ -20,8 +21,9 @@ class _PlasterScreenState extends State<PlasterScreen> {
     final length = _positive(_length, 'Length'), second = _positive(_second, _type == PlasterType.wall ? 'Wall Height' : 'Width'), walls = _type == PlasterType.wall ? _positive(_walls, 'Number of Walls') : 1.0, thickness = _thickness == 'Custom' ? _positive(_customThickness, 'Thickness') : double.parse(_thickness), wastage = _positive(_wastage, 'Wastage');
     if (length == null || second == null || walls == null || thickness == null || wastage == null) return;
     if (_type == PlasterType.wall && walls != walls.roundToDouble()) { _error('Number of Walls must be a whole number.'); return; }
+    final system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     final parts = _ratio.split(':');
-    final result = PlasterCalculator.calculate(area: length * second * walls, thicknessMm: thickness, cementPart: double.parse(parts.first.trim()), sandPart: double.parse(parts.last.trim()), wastagePercent: wastage);
+    final result = PlasterCalculator.calculate(area: MeasurementPreferences.toMetres(length, system) * MeasurementPreferences.toMetres(second, system) * walls, thicknessMm: thickness, cementPart: double.parse(parts.first.trim()), sandPart: double.parse(parts.last.trim()), wastagePercent: wastage);
     Navigator.push(context, MaterialPageRoute(builder: (_) => PlasterResultScreen(result: result, type: _type, thicknessMm: thickness, mortarRatio: _ratio, wastagePercent: wastage)));
   }
   @override Widget build(BuildContext context) => AppScaffold(title: 'Plaster Calculator', bodyBuilder: (context, padding) => SingleChildScrollView(padding: padding, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
