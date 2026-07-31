@@ -6,16 +6,12 @@ import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
 import 'masonry_screen.dart';
 import 'plaster_screen.dart';
+import 'steel_weight_screen.dart';
 import 'unit_converter_screen.dart';
+import 'volume_calculator_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  void _showUnavailable(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('🚧 $feature Coming Soon')),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +90,18 @@ class HomeScreen extends StatelessWidget {
                   ),
                   DashboardCard(
                     title: 'Steel Weight',
-                    subtitle: '🚧 Coming Soon',
+                    subtitle: 'Bar Weight Calculator',
                     icon: Icons.hardware_rounded,
                     color: colorScheme.primary,
                     compact: true,
-                    onTap: () => _showUnavailable(context, 'Steel Weight'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SteelWeightScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -112,44 +115,19 @@ class HomeScreen extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 children: [
                   DashboardCard(
-                    title: 'Slab',
-                    subtitle: 'Concrete volume',
-                    icon: Icons.crop_16_9_rounded,
+                    title: 'Volume Calculator',
+                    subtitle: '4 Basic Shapes',
+                    icon: Icons.view_in_ar_rounded,
                     color: colorScheme.primary,
                     compact: true,
-                    onTap: () => _showUnavailable(context, 'Slab calculator'),
-                  ),
-                  DashboardCard(
-                    title: 'Beam',
-                    subtitle: 'Concrete volume',
-                    icon: Icons.view_agenda_rounded,
-                    color: colorScheme.primary,
-                    compact: true,
-                    onTap: () => _showUnavailable(context, 'Beam calculator'),
-                  ),
-                  DashboardCard(
-                    title: 'Column',
-                    subtitle: 'Concrete volume',
-                    icon: Icons.account_balance_rounded,
-                    color: colorScheme.primary,
-                    compact: true,
-                    onTap: () => _showUnavailable(context, 'Column calculator'),
-                  ),
-                  DashboardCard(
-                    title: 'Footing',
-                    subtitle: 'Concrete volume',
-                    icon: Icons.architecture_rounded,
-                    color: colorScheme.primary,
-                    compact: true,
-                    onTap: () => _showUnavailable(context, 'Footing calculator'),
-                  ),
-                  DashboardCard(
-                    title: 'Excavation',
-                    subtitle: 'Earthwork',
-                    icon: Icons.landscape_rounded,
-                    color: colorScheme.primary,
-                    compact: true,
-                    onTap: () => _showUnavailable(context, 'Excavation calculator'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const VolumeCalculatorScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -176,14 +154,6 @@ class HomeScreen extends StatelessWidget {
                         ),
                       );
                     },
-                  ),
-                  DashboardCard(
-                    title: 'Settings',
-                    subtitle: 'Preferences',
-                    icon: Icons.settings_rounded,
-                    color: colorScheme.primary,
-                    compact: true,
-                    onTap: () => _showUnavailable(context, 'Settings'),
                   ),
                 ],
               ),
