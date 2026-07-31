@@ -4,6 +4,7 @@ import '../widgets/app_scaffold.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
+import 'excavation_screen.dart';
 import 'masonry_screen.dart';
 import 'plaster_screen.dart';
 import 'steel_weight_screen.dart';
@@ -136,6 +137,21 @@ class HomeScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const VolumeCalculatorScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  DashboardCard(
+                    title: 'Excavation Calculator',
+                    subtitle: '3 Excavation Types',
+                    icon: Icons.landscape_rounded,
+                    color: colorScheme.primary,
+                    compact: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ExcavationScreen(),
                         ),
                       );
                     },

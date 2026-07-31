@@ -79,7 +79,7 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
     return AppScaffold(
       title: 'Unit Converter',
       bodyBuilder: (context, padding) => SingleChildScrollView(
-        padding: padding,
+        padding: padding.add(EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Engineering Unit Converter', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 5),
@@ -97,15 +97,24 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             DropdownButtonFormField<UnitDefinition>(initialValue: _fromUnit, decoration: const InputDecoration(labelText: 'From Unit', floatingLabelBehavior: FloatingLabelBehavior.always), items: _units.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.label))).toList(), onChanged: (unit) => _selectFrom(unit!)),
             Center(child: IconButton.filledTonal(onPressed: _swapUnits, icon: const Icon(Icons.swap_vert_rounded), tooltip: 'Swap units')),
             DropdownButtonFormField<UnitDefinition>(initialValue: _toUnit, decoration: const InputDecoration(labelText: 'To Unit', floatingLabelBehavior: FloatingLabelBehavior.always), items: _units.map((unit) => DropdownMenuItem(value: unit, child: Text(unit.label))).toList(), onChanged: (unit) => _selectTo(unit!)),
-            const SizedBox(height: 16),
-            TextField(controller: _valueController, onChanged: (_) => setState(() {}), keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true), inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$'))], decoration: InputDecoration(labelText: 'Enter Value', suffixText: _fromUnit.label, floatingLabelBehavior: FloatingLabelBehavior.always)),
           ]))),
           const SizedBox(height: 16),
-          Card(color: colors.primaryContainer, child: Padding(padding: const EdgeInsets.all(22), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Converted Value', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colors.onPrimaryContainer)), const SizedBox(height: 8),
-            Text(result == null ? '—' : _formatResult(result), style: Theme.of(context).textTheme.displaySmall?.copyWith(color: colors.onPrimaryContainer, fontWeight: FontWeight.w700)), const SizedBox(height: 3),
+          Card(color: colors.primaryContainer, elevation: 2, child: Padding(padding: const EdgeInsets.all(18), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Converted Value', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: colors.onPrimaryContainer)),
+            const SizedBox(height: 6),
+            FittedBox(alignment: Alignment.centerLeft, fit: BoxFit.scaleDown, child: Text(result == null ? '—' : _formatResult(result), style: Theme.of(context).textTheme.displaySmall?.copyWith(color: colors.onPrimaryContainer, fontWeight: FontWeight.w700))),
             Text(_toUnit.label, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: colors.onPrimaryContainer)),
+            const SizedBox(height: 8),
+            Text(result == null ? 'Enter a value to convert' : 'From: ${_valueController.text} ${_fromUnit.label}', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.onPrimaryContainer)),
+            const SizedBox(height: 8),
+            Wrap(spacing: 4, runSpacing: 4, children: [
+              TextButton.icon(onPressed: result == null ? null : () => Clipboard.setData(ClipboardData(text: '${_formatResult(result)} ${_toUnit.label}')), icon: const Icon(Icons.copy_rounded, size: 18), label: const Text('Copy Result')),
+              TextButton.icon(onPressed: _swapUnits, icon: const Icon(Icons.swap_vert_rounded, size: 18), label: const Text('Swap Units')),
+              TextButton.icon(onPressed: result == null ? null : () { _valueController.clear(); setState(() {}); }, icon: const Icon(Icons.clear_rounded, size: 18), label: const Text('Clear Input')),
+            ]),
           ]))),
+          const SizedBox(height: 16),
+          Card(child: Padding(padding: const EdgeInsets.all(18), child: TextField(controller: _valueController, onChanged: (_) => setState(() {}), keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true), inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$'))], decoration: InputDecoration(labelText: 'Enter Value', suffixText: _fromUnit.label, floatingLabelBehavior: FloatingLabelBehavior.always)))),
         ]),
       ),
     );
