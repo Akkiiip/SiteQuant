@@ -7,6 +7,7 @@ import 'concrete_screen.dart';
 import 'masonry_screen.dart';
 import 'plaster_screen.dart';
 import 'steel_weight_screen.dart';
+import 'settings_screen.dart';
 import 'unit_converter_screen.dart';
 import 'volume_calculator_screen.dart';
 
@@ -20,6 +21,16 @@ class HomeScreen extends StatelessWidget {
     return AppScaffold(
       title: 'SiteQuant',
       actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Tooltip(
