@@ -33,7 +33,7 @@ class MasonryResultScreen extends StatelessWidget {
     ]));
   }
 
-  Widget _summary(BuildContext context, String label, String value) => Padding(padding: const EdgeInsets.only(top: 7), child: Row(children: [Expanded(child: Text(label)), Text(value, style: Theme.of(context).textTheme.labelLarge)]));
+  Widget _summary(BuildContext context, String label, String value) => Padding(padding: const EdgeInsets.only(top: 7), child: Row(children: [Expanded(child: Text(label)), Flexible(child: Text(value, maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.end, style: Theme.of(context).textTheme.labelLarge))]));
 }
 
 class _TakeoffCard extends StatelessWidget {
@@ -50,5 +50,5 @@ class _TakeoffCard extends StatelessWidget {
     _row(context, 'Sand', [('m³', result.sandM3.toStringAsFixed(2)), ('Brass', result.sandBrass.toStringAsFixed(2))]),
   ])));
 
-  Widget _row(BuildContext context, String title, List<(String, String)> values) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 110, child: Text(title, style: Theme.of(context).textTheme.titleSmall)), Expanded(child: Row(children: values.map((value) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value.$1, style: Theme.of(context).textTheme.labelSmall), Text(value.$2, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700))]))).toList()))]);
+  Widget _row(BuildContext context, String title, List<(String, String)> values) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 110, child: Text(title, style: Theme.of(context).textTheme.titleSmall)), Expanded(child: Row(children: values.map((value) => Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value.$1, style: Theme.of(context).textTheme.labelSmall), Text(value.$2, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700))]))).toList()))]);
 }

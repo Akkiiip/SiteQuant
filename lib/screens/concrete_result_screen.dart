@@ -182,7 +182,15 @@ class _CalculationDetail extends StatelessWidget {
         children: [
           Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
           const SizedBox(width: 12),
-          Text(value, style: Theme.of(context).textTheme.labelLarge),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
         ],
       ),
     );

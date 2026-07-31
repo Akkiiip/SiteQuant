@@ -123,6 +123,8 @@ class _MaterialValue extends StatelessWidget {
         Text(label, style: Theme.of(context).textTheme.labelSmall),
         Text(
           value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),

@@ -86,6 +86,8 @@ class _SummaryValue extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: colorScheme.onPrimaryContainer,
                 ),
