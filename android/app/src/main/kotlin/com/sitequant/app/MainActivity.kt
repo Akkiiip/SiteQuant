@@ -1,4 +1,4 @@
-package com.example.site_quant
+package com.sitequant.app
 
 import io.flutter.embedding.android.FlutterActivity
 

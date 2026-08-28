@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635956052976",
+    "project_id": "sitequant-8842d",
+    "storage_bucket": "sitequant-8842d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635956052976:android:222f7656c33c2719f11335",
+        "android_client_info": {
+          "package_name": "com.sitequant.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAjWmh2bK-kY9Ww4YX8kUd16z3jXAnams"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

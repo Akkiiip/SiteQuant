@@ -3,8 +3,20 @@ import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'services/measurement_system.dart';
 import 'widgets/measurement_system_dialog.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FlutterError.onError =
+      FirebaseCrashlytics.instance.recordFlutterFatalError;
+
   runApp(const SiteQuantApp());
 }
 
