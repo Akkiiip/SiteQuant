@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'bottom_banner_slot.dart';
 
-typedef AppBodyBuilder = Widget Function(BuildContext context, EdgeInsets padding);
+typedef AppBodyBuilder =
+    Widget Function(BuildContext context, EdgeInsets padding);
 
 class AppScaffold extends StatelessWidget {
   final String title;

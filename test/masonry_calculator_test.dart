@@ -9,11 +9,7 @@ void main() {
       height: 3,
       walls: 1,
       thicknessMm: 230,
-      unitSize: const MasonryUnitSize(
-        lengthMm: 190,
-        widthMm: 90,
-        heightMm: 90,
-      ),
+      unitSize: const MasonryUnitSize(lengthMm: 190, widthMm: 90, heightMm: 90),
       cementPart: 1,
       sandPart: 6,
       wastagePercent: 5,

@@ -15,12 +15,7 @@ void main() {
       closeTo(0.6, 0.0001),
     );
     expect(
-      VolumeCalculator.column(
-        length: 0.3,
-        breadth: 0.4,
-        height: 3,
-        number: 2,
-      ),
+      VolumeCalculator.column(length: 0.3, breadth: 0.4, height: 3, number: 2),
       closeTo(0.72, 0.0001),
     );
     expect(
@@ -46,12 +41,7 @@ void main() {
       VolumeCalculator.beam(length: 4, width: 0.3, depth: 0.5),
       VolumeCalculator.footing(length: 2, width: 2, depth: 0.4, number: 2),
       VolumeCalculator.circularFooting(diameter: 2, depth: 0.4, number: 1),
-      VolumeCalculator.column(
-        length: 0.3,
-        breadth: 0.4,
-        height: 3,
-        number: 2,
-      ),
+      VolumeCalculator.column(length: 0.3, breadth: 0.4, height: 3, number: 2),
       VolumeCalculator.circularColumn(diameter: 2, height: 3, number: 2),
     ];
 

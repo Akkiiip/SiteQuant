@@ -13,9 +13,20 @@ class SteelWeightCalculator {
     32: 6.310,
   };
 
-  static SteelWeightResult calculate({required int diameter, required double barLength, required int barCount}) {
+  static SteelWeightResult calculate({
+    required int diameter,
+    required double barLength,
+    required int barCount,
+  }) {
     final unitWeight = unitWeights[diameter]!;
     final weightPerBar = unitWeight * barLength;
-    return SteelWeightResult(diameter: diameter, unitWeight: unitWeight, barLength: barLength, barCount: barCount, weightPerBar: weightPerBar, totalWeight: weightPerBar * barCount);
+    return SteelWeightResult(
+      diameter: diameter,
+      unitWeight: unitWeight,
+      barLength: barLength,
+      barCount: barCount,
+      weightPerBar: weightPerBar,
+      totalWeight: weightPerBar * barCount,
+    );
   }
 }

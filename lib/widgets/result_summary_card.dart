@@ -26,7 +26,10 @@ class ResultSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Calculation Summary', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Calculation Summary',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
@@ -37,9 +40,18 @@ class ResultSummaryCard extends StatelessWidget {
                   _SummaryValue('Structure', structure),
                   _SummaryValue('Concrete Grade', grade),
                   _SummaryValue('Mix Ratio', mixRatio),
-                  _SummaryValue('Water-Cement Ratio', 'W/C ${wcRatio.toStringAsFixed(2)}'),
-                  _SummaryValue('Concrete Volume', '${volume.toStringAsFixed(2)} m³'),
-                  _SummaryValue('Dry Volume', '${dryVolume.toStringAsFixed(2)} m³'),
+                  _SummaryValue(
+                    'Water-Cement Ratio',
+                    'W/C ${wcRatio.toStringAsFixed(2)}',
+                  ),
+                  _SummaryValue(
+                    'Concrete Volume',
+                    '${volume.toStringAsFixed(2)} m³',
+                  ),
+                  _SummaryValue(
+                    'Dry Volume',
+                    '${dryVolume.toStringAsFixed(2)} m³',
+                  ),
                 ];
 
                 return Wrap(
@@ -80,8 +92,8 @@ class _SummaryValue extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                ),
+              color: colorScheme.onPrimaryContainer,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
@@ -89,8 +101,8 @@ class _SummaryValue extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                ),
+              color: colorScheme.onPrimaryContainer,
+            ),
           ),
         ],
       ),

@@ -30,8 +30,18 @@ class DashboardCard extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(compact ? 14 : 18),
             child: compact
-                ? _CompactCardContent(color: color, icon: icon, title: title, subtitle: subtitle)
-                : _StandardCardContent(color: color, icon: icon, title: title, subtitle: subtitle),
+                ? _CompactCardContent(
+                    color: color,
+                    icon: icon,
+                    title: title,
+                    subtitle: subtitle,
+                  )
+                : _StandardCardContent(
+                    color: color,
+                    icon: icon,
+                    title: title,
+                    subtitle: subtitle,
+                  ),
           ),
         ),
       ),

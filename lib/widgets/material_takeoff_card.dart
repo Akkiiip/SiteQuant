@@ -21,7 +21,10 @@ class MaterialTakeoffCard extends StatelessWidget {
               children: [
                 Icon(Icons.inventory_2_outlined, color: colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('Material Takeoff', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Material Takeoff',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -48,14 +51,19 @@ class MaterialTakeoffCard extends StatelessWidget {
               icon: Icons.grain_rounded,
               values: [
                 _MaterialValue('m³', result.aggregateM3.toStringAsFixed(2)),
-                _MaterialValue('Brass', result.aggregateBrass.toStringAsFixed(2)),
+                _MaterialValue(
+                  'Brass',
+                  result.aggregateBrass.toStringAsFixed(2),
+                ),
               ],
             ),
             const Divider(height: 24),
             _MaterialRow(
               title: 'Water',
               icon: Icons.water_drop_rounded,
-              values: [_MaterialValue('L', result.waterLitres.round().toString())],
+              values: [
+                _MaterialValue('L', result.waterLitres.round().toString()),
+              ],
             ),
           ],
         ),
@@ -125,9 +133,9 @@ class _MaterialValue extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );

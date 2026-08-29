@@ -22,23 +22,23 @@ class HomeScreen extends StatelessWidget {
     return AppScaffold(
       title: 'SiteQuant',
       actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            tooltip: 'Settings',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
+        IconButton(
+          icon: const Icon(Icons.settings_rounded),
+          tooltip: 'Settings',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: Tooltip(
+            message: 'Civil engineering toolkit',
+            child: Icon(Icons.engineering_rounded, color: colorScheme.primary),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Tooltip(
-              message: 'Civil engineering toolkit',
-              child: Icon(Icons.engineering_rounded, color: colorScheme.primary),
-            ),
-          ),
+        ),
       ],
       bodyBuilder: (context, padding) => LayoutBuilder(
         builder: (context, constraints) {
@@ -70,7 +70,9 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ConcreteScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const ConcreteScreen(),
+                        ),
                       );
                     },
                   ),
@@ -83,7 +85,9 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const MasonryScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const MasonryScreen(),
+                        ),
                       );
                     },
                   ),
@@ -96,7 +100,9 @@ class HomeScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const PlasterScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const PlasterScreen(),
+                        ),
                       );
                     },
                   ),

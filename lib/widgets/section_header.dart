@@ -30,7 +30,11 @@ class SectionHeader extends StatelessWidget {
         else
           Row(
             children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+              Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Expanded(child: titleWidget),
             ],

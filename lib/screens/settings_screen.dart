@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/section_header.dart';
 import '../services/measurement_system.dart';
+import '../services/ad_consent_manager.dart';
 import '../widgets/measurement_system_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -47,6 +48,10 @@ class SettingsScreen extends StatelessWidget {
         'Unable to open Privacy Policy. Please try again later.',
       );
     }
+  }
+
+  Future<void> _showPrivacyChoices(BuildContext context) async {
+    await AdConsentManager.showPrivacyOptions();
   }
 
   @override
@@ -94,6 +99,19 @@ class SettingsScreen extends StatelessWidget {
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy Policy',
               onTap: () => _openPrivacyPolicy(context),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: AdConsentManager.privacyOptionsRequired,
+              builder: (context, isRequired, _) {
+                if (!isRequired) {
+                  return const SizedBox.shrink();
+                }
+                return _Tile(
+                  icon: Icons.tune_rounded,
+                  title: 'Privacy Choices',
+                  onTap: () => _showPrivacyChoices(context),
+                );
+              },
             ),
             _Tile(
               icon: Icons.email_outlined,

@@ -23,9 +23,7 @@ class ConcreteCalculator {
     required double wcRatio,
   }) {
     if (!supportsGrade(grade)) {
-      throw Exception(
-        'Design Mix (M30 and above) is not supported yet.',
-      );
+      throw Exception('Design Mix (M30 and above) is not supported yet.');
     }
 
     final ratio = mixRatios[grade]!;
@@ -34,34 +32,25 @@ class ConcreteCalculator {
     final sandPart = ratio[1];
     final aggregatePart = ratio[2];
 
-    final totalParts =
-        cementPart + sandPart + aggregatePart;
+    final totalParts = cementPart + sandPart + aggregatePart;
 
     final dryVolume = volume * dryVolumeFactor;
 
-    final cementVolume =
-        dryVolume * cementPart / totalParts;
+    final cementVolume = dryVolume * cementPart / totalParts;
 
-    final sandVolume =
-        dryVolume * sandPart / totalParts;
+    final sandVolume = dryVolume * sandPart / totalParts;
 
-    final aggregateVolume =
-        dryVolume * aggregatePart / totalParts;
+    final aggregateVolume = dryVolume * aggregatePart / totalParts;
 
-    final cementKg =
-        cementVolume * cementDensity;
+    final cementKg = cementVolume * cementDensity;
 
-    final cementBags =
-        cementKg / bagWeight;
+    final cementBags = cementKg / bagWeight;
 
-    final sandBrass =
-        sandVolume / brassConversion;
+    final sandBrass = sandVolume / brassConversion;
 
-    final aggregateBrass =
-        aggregateVolume / brassConversion;
+    final aggregateBrass = aggregateVolume / brassConversion;
 
-    final waterLitres =
-        cementKg * wcRatio;
+    final waterLitres = cementKg * wcRatio;
 
     return ConcreteResult(
       volume: volume,

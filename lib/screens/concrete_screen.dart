@@ -9,14 +9,29 @@ import '../widgets/primary_button.dart';
 import '../widgets/section_header.dart';
 import 'concrete_result_screen.dart';
 
-typedef _VolumeMethod = double Function(
-  Map<_InputKey, double> values,
-  int quantity,
-);
+typedef _VolumeMethod =
+    double Function(Map<_InputKey, double> values, int quantity);
 
-enum _InputKey { length, width, thickness, depth, height, diameter, quantity, volume }
+enum _InputKey {
+  length,
+  width,
+  thickness,
+  depth,
+  height,
+  diameter,
+  quantity,
+  volume,
+}
 
-enum _DiagramKind { slab, beam, column, footing, circularColumn, circularFooting, custom }
+enum _DiagramKind {
+  slab,
+  beam,
+  column,
+  footing,
+  circularColumn,
+  circularFooting,
+  custom,
+}
 
 class _InputDefinition {
   final _InputKey key;
@@ -66,7 +81,11 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
     unit: null,
     wholeNumber: true,
   );
-  static const _volume = _InputDefinition(_InputKey.volume, 'Volume', unit: 'm³');
+  static const _volume = _InputDefinition(
+    _InputKey.volume,
+    'Volume',
+    unit: 'm³',
+  );
 
   static final List<_StructureConfig> _structures = [
     _StructureConfig(
@@ -155,7 +174,9 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
   final Map<_InputKey, TextEditingController> _controllers = {
     for (final key in _InputKey.values) key: TextEditingController(),
   };
-  final TextEditingController _wcController = TextEditingController(text: '0.45');
+  final TextEditingController _wcController = TextEditingController(
+    text: '0.45',
+  );
 
   late _StructureConfig _selectedStructure;
   String _selectedGrade = 'M20';
@@ -207,13 +228,16 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       return;
     }
 
-    final system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
+    final system =
+        MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     final values = <_InputKey, double>{};
     for (final field in _selectedStructure.fields) {
       final rawValue = _controllers[field.key]!.text.trim();
       final value = double.tryParse(rawValue);
       if (rawValue.isEmpty || value == null || value <= 0) {
-        _showValidationMessage('Enter a value greater than zero for ${field.label}.');
+        _showValidationMessage(
+          'Enter a value greater than zero for ${field.label}.',
+        );
         return;
       }
       if (field.wholeNumber && value != value.roundToDouble()) {
@@ -223,8 +247,8 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       values[field.key] = field.key == _InputKey.quantity
           ? value
           : field.key == _InputKey.volume
-              ? MeasurementPreferences.toCubicMetres(value, system)
-              : MeasurementPreferences.toMetres(value, system);
+          ? MeasurementPreferences.toCubicMetres(value, system)
+          : MeasurementPreferences.toMetres(value, system);
     }
 
     final wcRatio = double.tryParse(_wcController.text.trim());
@@ -238,7 +262,9 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       values[_InputKey.quantity]?.round() ?? 1,
     );
     if (volume <= 0) {
-      _showValidationMessage('Enter dimensions that produce a volume greater than zero.');
+      _showValidationMessage(
+        'Enter dimensions that produce a volume greater than zero.',
+      );
       return;
     }
 
@@ -334,15 +360,18 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
                     const SizedBox(height: 12),
                     _StructureDiagram(kind: _selectedStructure.diagram),
                     const SizedBox(height: 16),
-                    for (var index = 0;
-                        index < _selectedStructure.fields.length;
-                        index++) ...[
+                    for (
+                      var index = 0;
+                      index < _selectedStructure.fields.length;
+                      index++
+                    ) ...[
                       DimensionInputField(
-                        controller: _controllers[
-                            _selectedStructure.fields[index].key]!,
+                        controller:
+                            _controllers[_selectedStructure.fields[index].key]!,
                         label: _selectedStructure.fields[index].label,
                         unit: _selectedStructure.fields[index].unit,
-                        wholeNumber: _selectedStructure.fields[index].wholeNumber,
+                        wholeNumber:
+                            _selectedStructure.fields[index].wholeNumber,
                       ),
                       if (index < _selectedStructure.fields.length - 1)
                         const SizedBox(height: 14),
@@ -378,7 +407,8 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
                             ),
                           )
                           .toList(),
-                      onChanged: (value) => setState(() => _selectedGrade = value!),
+                      onChanged: (value) =>
+                          setState(() => _selectedGrade = value!),
                     ),
                     const SizedBox(height: 14),
                     DimensionInputField(

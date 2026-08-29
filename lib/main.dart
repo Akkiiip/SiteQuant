@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
@@ -6,18 +8,17 @@ import 'widgets/measurement_system_dialog.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'firebase_options.dart';
+import 'services/ad_consent_manager.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  FlutterError.onError =
-      FirebaseCrashlytics.instance.recordFlutterFatalError;
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
   runApp(const SiteQuantApp());
+  unawaited(AdConsentManager.initialize());
 }
 
 class SiteQuantApp extends StatelessWidget {
@@ -61,7 +62,10 @@ class _MeasurementSetupGateState extends State<_MeasurementSetupGate> {
         if (system == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && MeasurementPreferences.system.value == null) {
-              showMeasurementSystemDialog(context, initial: MeasurementSystem.metric);
+              showMeasurementSystemDialog(
+                context,
+                initial: MeasurementSystem.metric,
+              );
             }
           });
           return const Scaffold(body: SizedBox.expand());

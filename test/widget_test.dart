@@ -10,8 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:site_quant/main.dart';
 
 void main() {
-  testWidgets('opens the concrete calculator from the dashboard',
-      (WidgetTester tester) async {
+  testWidgets('opens the concrete calculator from the dashboard', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const SiteQuantApp());
 

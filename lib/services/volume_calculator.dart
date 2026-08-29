@@ -1,10 +1,25 @@
 import 'dart:math';
 
 class VolumeCalculator {
-  static double cuboid({required double length, required double width, required double height}) => length * width * height;
-  static double cylinder({required double diameter, required double height}) { final radius = diameter / 2; return pi * radius * radius * height; }
-  static double cone({required double diameter, required double height}) { final radius = diameter / 2; return pi * radius * radius * height / 3; }
-  static double sphere({required double diameter}) { final radius = diameter / 2; return 4 * pi * radius * radius * radius / 3; }
+  static double cuboid({
+    required double length,
+    required double width,
+    required double height,
+  }) => length * width * height;
+  static double cylinder({required double diameter, required double height}) {
+    final radius = diameter / 2;
+    return pi * radius * radius * height;
+  }
+
+  static double cone({required double diameter, required double height}) {
+    final radius = diameter / 2;
+    return pi * radius * radius * height / 3;
+  }
+
+  static double sphere({required double diameter}) {
+    final radius = diameter / 2;
+    return 4 * pi * radius * radius * radius / 3;
+  }
 
   // Slab
   static double slab({
@@ -63,9 +78,7 @@ class VolumeCalculator {
   }
 
   // Custom Volume
-  static double custom({
-    required double volume,
-  }) {
+  static double custom({required double volume}) {
     return volume;
   }
 }

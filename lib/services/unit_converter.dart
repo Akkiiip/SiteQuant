@@ -2,11 +2,11 @@ enum UnitCategory { length, area, volume, weight }
 
 extension UnitCategoryDetails on UnitCategory {
   String get label => switch (this) {
-        UnitCategory.length => 'Length',
-        UnitCategory.area => 'Area',
-        UnitCategory.volume => 'Volume',
-        UnitCategory.weight => 'Weight',
-      };
+    UnitCategory.length => 'Length',
+    UnitCategory.area => 'Area',
+    UnitCategory.volume => 'Volume',
+    UnitCategory.weight => 'Weight',
+  };
 }
 
 class UnitDefinition {
@@ -53,6 +53,5 @@ class UnitConverter {
     required double value,
     required UnitDefinition from,
     required UnitDefinition to,
-  }) =>
-      value * from.factorToBase / to.factorToBase;
+  }) => value * from.factorToBase / to.factorToBase;
 }

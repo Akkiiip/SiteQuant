@@ -47,11 +47,8 @@ class MasonryCalculator {
     );
   }
 
-  static _Dimensions _nominalDimensions(_Dimensions unit) => _Dimensions(
-        unit.length + 0.01,
-        unit.width + 0.01,
-        unit.height + 0.01,
-      );
+  static _Dimensions _nominalDimensions(_Dimensions unit) =>
+      _Dimensions(unit.length + 0.01, unit.width + 0.01, unit.height + 0.01);
 
   static double _volume(_Dimensions dimensions) =>
       dimensions.length * dimensions.width * dimensions.height;

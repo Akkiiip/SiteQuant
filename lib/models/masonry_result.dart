@@ -2,18 +2,18 @@ enum MasonryType { clayBrick, aacBlock, concreteBlock, lateriteStone }
 
 extension MasonryTypeDetails on MasonryType {
   String get label => switch (this) {
-        MasonryType.clayBrick => 'Clay Brick',
-        MasonryType.aacBlock => 'AAC Block',
-        MasonryType.concreteBlock => 'Concrete Block',
-        MasonryType.lateriteStone => 'Laterite Stone Masonry',
-      };
+    MasonryType.clayBrick => 'Clay Brick',
+    MasonryType.aacBlock => 'AAC Block',
+    MasonryType.concreteBlock => 'Concrete Block',
+    MasonryType.lateriteStone => 'Laterite Stone Masonry',
+  };
 
   String get unitLabel => switch (this) {
-        MasonryType.clayBrick => 'Bricks',
-        MasonryType.aacBlock => 'AAC Blocks',
-        MasonryType.concreteBlock => 'Concrete Blocks',
-        MasonryType.lateriteStone => 'Stones',
-      };
+    MasonryType.clayBrick => 'Bricks',
+    MasonryType.aacBlock => 'AAC Blocks',
+    MasonryType.concreteBlock => 'Concrete Blocks',
+    MasonryType.lateriteStone => 'Stones',
+  };
 }
 
 class MasonryResult {

@@ -30,10 +30,10 @@ class DimensionInputField extends StatelessWidget {
           suffixText: !useMeasurementSystem
               ? unit
               : unit == 'm'
-                  ? (system ?? MeasurementSystem.metric).lengthUnit
-                  : unit == 'm³'
-                      ? (system ?? MeasurementSystem.metric).volumeUnit
-                      : unit,
+              ? (system ?? MeasurementSystem.metric).lengthUnit
+              : unit == 'm³'
+              ? (system ?? MeasurementSystem.metric).volumeUnit
+              : unit,
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
       ),

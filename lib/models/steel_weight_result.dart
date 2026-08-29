@@ -6,5 +6,12 @@ class SteelWeightResult {
   final double weightPerBar;
   final double totalWeight;
 
-  const SteelWeightResult({required this.diameter, required this.unitWeight, required this.barLength, required this.barCount, required this.weightPerBar, required this.totalWeight});
+  const SteelWeightResult({
+    required this.diameter,
+    required this.unitWeight,
+    required this.barLength,
+    required this.barCount,
+    required this.weightPerBar,
+    required this.totalWeight,
+  });
 }

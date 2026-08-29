@@ -152,7 +152,8 @@ class _AboutCalculation extends StatelessWidget {
           ),
           _CalculationDetail(
             label: 'Cement Density',
-            value: '${ConcreteCalculator.cementDensity.toStringAsFixed(0)} kg/m³',
+            value:
+                '${ConcreteCalculator.cementDensity.toStringAsFixed(0)} kg/m³',
           ),
           _CalculationDetail(
             label: 'Bag Weight',
@@ -180,7 +181,9 @@ class _CalculationDetail extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
+          Expanded(
+            child: Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          ),
           const SizedBox(width: 12),
           Flexible(
             child: Text(

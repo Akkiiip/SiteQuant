@@ -34,9 +34,7 @@ class AppTheme {
       surfaceTintColor: Colors.white,
       color: Colors.white,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -62,10 +60,7 @@ class AppTheme {
         elevation: 0,
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     ),
@@ -74,10 +69,7 @@ class AppTheme {
       selectedColor: primaryBlue,
       side: const BorderSide(color: primaryBlue),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      labelStyle: const TextStyle(
-        color: ink,
-        fontWeight: FontWeight.w600,
-      ),
+      labelStyle: const TextStyle(color: ink, fontWeight: FontWeight.w600),
       secondaryLabelStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w700,
@@ -105,14 +97,8 @@ class AppTheme {
         color: ink,
         letterSpacing: -0.5,
       ),
-      titleLarge: TextStyle(
-        fontWeight: FontWeight.w700,
-        color: ink,
-      ),
-      titleMedium: TextStyle(
-        fontWeight: FontWeight.w700,
-        color: ink,
-      ),
+      titleLarge: TextStyle(fontWeight: FontWeight.w700, color: ink),
+      titleMedium: TextStyle(fontWeight: FontWeight.w700, color: ink),
       bodyLarge: TextStyle(color: ink),
       bodyMedium: TextStyle(color: mutedInk),
       labelLarge: TextStyle(fontWeight: FontWeight.w700),
