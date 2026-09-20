@@ -10,7 +10,6 @@ import 'package:site_quant/theme/app_theme.dart';
 Finder field(String label) => find.byWidgetPredicate(
   (widget) => widget is TextField && widget.decoration?.labelText == label,
 );
-
 Future<void> enter(WidgetTester tester, String label, String text) async {
   await tester.ensureVisible(field(label));
   await tester.enterText(field(label), text);
@@ -41,13 +40,30 @@ Future<void> selectThickness(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> scrollResult(WidgetTester tester, String text) async {
-  await tester.scrollUntilVisible(
-    find.text(text),
-    350,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.pumpAndSettle();
+Finder resultScrollable() => find
+    .descendant(
+      of: find.byType(PlasterResultScreen),
+      matching: find.byType(ListView),
+    )
+    .first;
+Future<void> scrollResult(WidgetTester tester, Finder target) async {
+  final scrollable = resultScrollable();
+  final viewportHeight = tester.view.physicalSize.height;
+  for (var attempt = 0; attempt < 16; attempt++) {
+    final matches = target.evaluate();
+    if (matches.isNotEmpty) {
+      final rect = tester.getRect(target.first);
+      if (rect.center.dy >= 0 && rect.center.dy <= viewportHeight) return;
+      final delta = rect.center.dy > viewportHeight
+          ? const Offset(0, -220)
+          : const Offset(0, 220);
+      await tester.drag(scrollable, delta);
+    } else {
+      await tester.drag(scrollable, const Offset(0, -220));
+    }
+    await tester.pumpAndSettle();
+  }
+  fail('Could not bring the requested result control into the viewport.');
 }
 
 void main() {
@@ -56,7 +72,6 @@ void main() {
     MeasurementPreferences.system.value = MeasurementSystem.metric;
   });
   tearDown(() => MeasurementPreferences.system.value = null);
-
   for (final thickness in ['12', '15', '20']) {
     testWidgets('$thickness mm survives input, navigation and result display', (
       tester,
@@ -73,13 +88,12 @@ void main() {
         find.byType(PlasterResultScreen),
       );
       expect(resultScreen.result.thicknessMm, double.parse(thickness));
-      await scrollResult(tester, 'Thickness');
+      await scrollResult(tester, find.text('Thickness'));
       expect(find.text('$thickness mm'), findsOneWidget);
       expect(find.text('2 mm'), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
-
   testWidgets(
     'dashboard to plaster, deductions, crew, costs and edit preservation',
     (tester) async {
@@ -121,10 +135,10 @@ void main() {
       expect(screen.result.area, closeTo(100, 1e-8));
       expect(screen.result.productivity.workingDays, closeTo(5.1, 1e-8));
       expect(screen.result.labour.totalCost, closeTo(15600, 1e-8));
-      await scrollResult(tester, 'Total Plaster Cost');
+      await scrollResult(tester, find.text('Total Plaster Cost'));
       expect(find.text('₹25386.67'), findsOneWidget);
       expect(find.text('Cost per m²'), findsOneWidget);
-      await scrollResult(tester, 'Edit Calculation');
+      await scrollResult(tester, find.text('Edit Calculation'));
       await tapVisible(tester, find.text('Edit Calculation'));
       expect(find.byType(PlasterScreen), findsOneWidget);
       expect(
@@ -137,8 +151,7 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-
-  testWidgets('imperial UI converts dimensions once and displays ft² / ft³', (
+  testWidgets('imperial input converts once and keeps primary result in m²', (
     tester,
   ) async {
     MeasurementPreferences.system.value = MeasurementSystem.imperial;
@@ -155,24 +168,16 @@ void main() {
     await enter(tester, 'Opening width', '2');
     await enter(tester, 'Opening height', '3');
     await rates(tester);
-    expect(
-      tester.widget<TextField>(field('Sand rate')).decoration!.suffixText,
-      '₹ / m³',
-    );
     await tapVisible(tester, find.text('Calculate Plaster'));
     final screen = tester.widget<PlasterResultScreen>(
       find.byType(PlasterResultScreen),
     );
     expect(screen.result.area, closeTo(94 * .3048 * .3048, 1e-9));
-    expect(find.text('94 ft²'), findsWidgets);
-    await scrollResult(tester, 'Wet Volume');
-    expect(find.textContaining('ft³'), findsWidgets);
-    await scrollResult(tester, 'Cost per ft²');
-    expect(find.text('Cost per ft²'), findsOneWidget);
-    expect(find.text('Cost per m² (pricing reference)'), findsOneWidget);
+    expect(find.textContaining('8.73 m²'), findsWidgets);
+    await scrollResult(tester, find.text('Cost per m²'));
+    expect(find.text('Cost per m²'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-
   testWidgets('invalid input shows useful error without navigation', (
     tester,
   ) async {
@@ -187,7 +192,6 @@ void main() {
     expect(find.byType(PlasterResultScreen), findsNothing);
     expect(tester.takeException(), isNull);
   });
-
   testWidgets('custom thickness and ceiling retain functionality', (
     tester,
   ) async {
@@ -235,9 +239,33 @@ void main() {
     await enter(tester, 'Wall Height', '10');
     await rates(tester);
     await tapVisible(tester, find.text('Calculate Plaster'));
-    await scrollResult(tester, 'Estimated Working Days');
+    await scrollResult(tester, find.text('Working Days'));
     expect(tester.takeException(), isNull);
-    await scrollResult(tester, 'Cost per m²');
+    await scrollResult(tester, find.text('Cost per m²'));
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('plaster result keeps labour details collapsed until requested', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.lightTheme, home: const PlasterScreen()),
+    );
+    await enter(tester, 'Wall Length', '10');
+    await enter(tester, 'Wall Height', '10');
+    await rates(tester);
+    await tapVisible(tester, find.text('Calculate Plaster'));
+    expect(find.text('Crew'), findsOneWidget);
+    expect(find.text('Working Days'), findsOneWidget);
+    expect(find.text('Mason mandays'), findsNothing);
+    final details = find.byType(ExpansionTile);
+    await scrollResult(tester, details);
+    await tester.tap(details);
+    await tester.pumpAndSettle();
+    expect(find.text('Mason mandays'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

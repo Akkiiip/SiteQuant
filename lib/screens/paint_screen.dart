@@ -8,6 +8,7 @@ import '../services/estimate_format.dart';
 import '../services/measurement_system.dart';
 import '../services/opening_calculator.dart';
 import '../services/paint_calculator.dart';
+import '../services/paint_reference_defaults.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/opening_deductions_editor.dart';
@@ -56,6 +57,7 @@ class _PaintScreenState extends State<PaintScreen> {
   _PaintAreaMode _areaMode = _PaintAreaMode.dimensions;
   List<OpeningDeduction> _openings = const [];
   int _painters = 1;
+  bool _customProduct = false;
   int _helpers = 1;
   late final MeasurementSystem _system;
 
@@ -63,6 +65,7 @@ class _PaintScreenState extends State<PaintScreen> {
   void initState() {
     super.initState();
     _system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
+    _applyReferenceDefaults();
     for (final controller in [_length, _height, _surfaces, _directArea]) {
       controller.addListener(_refresh);
     }
@@ -89,6 +92,29 @@ class _PaintScreenState extends State<PaintScreen> {
   }
 
   void _refresh() => setState(() {});
+
+  void _applyReferenceDefaults() {
+    final preset = PaintReferenceDefaults.forWorkType(_workType);
+    for (final entry in preset.materials.entries) {
+      final controllers = _materialControllers[entry.key]!;
+      final value = entry.value;
+      controllers.coats.text = value.coats.toString();
+      controllers.coverage.text = value.coverage.toString();
+      controllers.wastage.text = value.wastagePercent.toString();
+      controllers.rate.text = value.rate.toString();
+    }
+    _painterCoefficient.text = preset.painterDaysPer10M2.toString();
+    _helperCoefficient.text = preset.helperDaysPer10M2.toString();
+    _painterWage.text = preset.painterDailyWage.toString();
+    _helperWage.text = preset.helperDailyWage.toString();
+  }
+
+  void _selectWorkType(PaintWorkType type) {
+    setState(() {
+      _workType = type;
+      if (!_customProduct) _applyReferenceDefaults();
+    });
+  }
 
   double _number(TextEditingController controller, String label) {
     final value = double.tryParse(controller.text.trim());
@@ -252,14 +278,14 @@ class _PaintScreenState extends State<PaintScreen> {
               wholeNumber: true,
             ),
             const SizedBox(height: 12),
-            DimensionInputField(
+            if (_customProduct) DimensionInputField(
               controller: controllers.coverage,
               label: '${kind.label} ${kind.coverageLabel}',
               unit: null,
               useMeasurementSystem: false,
             ),
             const SizedBox(height: 12),
-            DimensionInputField(
+            if (_customProduct) DimensionInputField(
               controller: controllers.wastage,
               label: '${kind.label} wastage',
               unit: '%',
@@ -309,7 +335,7 @@ class _PaintScreenState extends State<PaintScreen> {
                   DropdownMenuItem(value: type, child: Text(type.label)),
               ],
               onChanged: (type) {
-                if (type != null) setState(() => _workType = type);
+                if (type != null) _selectWorkType(type);
               },
             ),
             Text(
@@ -318,6 +344,22 @@ class _PaintScreenState extends State<PaintScreen> {
               'sheet and site plan.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+          ]),
+          _card('Estimate Basis', Icons.tune_rounded, [
+            SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment(value: false, label: Text('Standard Reference')),
+                ButtonSegment(value: true, label: Text('Custom Product')),
+              ],
+              selected: {_customProduct},
+              onSelectionChanged: (value) => setState(() {
+                _customProduct = value.first;
+                if (!_customProduct) _applyReferenceDefaults();
+              }),
+            ),
+            Text(_customProduct
+                ? 'Enter product-specific coverage, wastage and rates.'
+                : 'Uses editable reference assumptions. Verify product coverage and local rates before purchase.'),
           ]),
           _card('Area Input', Icons.straighten_rounded, [
             SegmentedButton<_PaintAreaMode>(
@@ -374,13 +416,13 @@ class _PaintScreenState extends State<PaintScreen> {
               'No default paint productivity is used. Enter site-specific '
               'labour days per 10 m²; SiteQuant calculates mandays and duration.',
             ),
-            DimensionInputField(
+            if (_customProduct) DimensionInputField(
               controller: _painterCoefficient,
               label: 'Painter coefficient',
               unit: 'day / 10 m²',
               useMeasurementSystem: false,
             ),
-            DimensionInputField(
+            if (_customProduct) DimensionInputField(
               controller: _helperCoefficient,
               label: 'Helper coefficient',
               unit: 'day / 10 m²',
