@@ -1,20 +1,18 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:site_quant/main.dart';
+import 'package:site_quant/services/measurement_system.dart';
 
 void main() {
   testWidgets('opens the concrete calculator from the dashboard', (
-    WidgetTester tester,
+    tester,
   ) async {
-    // Build our app and trigger a frame.
+    // The app loads this preference asynchronously before showing its dashboard.
+    SharedPreferences.setMockInitialValues({'measurement_system': 'metric'});
+    MeasurementPreferences.system.value = MeasurementSystem.metric;
+    addTearDown(() => MeasurementPreferences.system.value = null);
     await tester.pumpWidget(const SiteQuantApp());
+    await tester.pumpAndSettle();
 
     expect(find.text('Civil Engineering Toolkit'), findsOneWidget);
     await tester.tap(find.text('Concrete'));
