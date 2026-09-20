@@ -42,6 +42,9 @@ class MeasurementPreferences {
   static double fromSquareMetres(double value, MeasurementSystem system) =>
       system == MeasurementSystem.metric ? value : value * 10.7639104167;
 
+  static double toSquareMetres(double value, MeasurementSystem system) =>
+      system == MeasurementSystem.metric ? value : value / 10.7639104167;
+
   static double fromCubicMetres(double value, MeasurementSystem system) =>
       system == MeasurementSystem.metric ? value : value * 35.3146667215;
 

@@ -7,6 +7,7 @@ import 'concrete_screen.dart';
 import 'excavation_screen.dart';
 import 'masonry_screen.dart';
 import 'plaster_screen.dart';
+import 'paint_screen.dart';
 import 'steel_weight_screen.dart';
 import 'settings_screen.dart';
 import 'unit_converter_screen.dart';
@@ -103,6 +104,19 @@ class HomeScreen extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => const PlasterScreen(),
                         ),
+                      );
+                    },
+                  ),
+                  DashboardCard(
+                    title: 'Paint & Finishes',
+                    subtitle: 'Paint • Putty • Primer',
+                    icon: Icons.format_paint_outlined,
+                    color: colorScheme.primary,
+                    compact: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const PaintScreen()),
                       );
                     },
                   ),

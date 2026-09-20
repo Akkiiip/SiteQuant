@@ -1,7 +1,11 @@
-enum LabourRole { mason, helper }
+enum LabourRole { mason, painter, helper }
 
 extension LabourRoleLabel on LabourRole {
-  String get label => this == LabourRole.mason ? 'Mason' : 'Helper/Coolie';
+  String get label => switch (this) {
+    LabourRole.mason => 'Mason',
+    LabourRole.painter => 'Painter',
+    LabourRole.helper => 'Helper/Coolie',
+  };
 }
 
 /// Labour days per base quantity (m² for plaster).

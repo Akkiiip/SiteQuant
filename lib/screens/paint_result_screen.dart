@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/plaster_result.dart';
+
+import '../models/paint_result.dart';
 import '../models/productivity_standard.dart';
 import '../services/estimate_cost_calculator.dart';
 import '../services/estimate_format.dart';
@@ -9,30 +10,28 @@ import '../widgets/app_scaffold.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/section_header.dart';
 
-class PlasterResultScreen extends StatelessWidget {
-  final PlasterResult result;
-  final PlasterType type;
+class PaintResultScreen extends StatelessWidget {
+  final PaintResult result;
   final MeasurementSystem system;
-  const PlasterResultScreen({
+
+  const PaintResultScreen({
     super.key,
     required this.result,
-    required this.type,
     required this.system,
   });
 
   String _area(double value) =>
       '${EstimateFormat.number(MeasurementPreferences.fromSquareMetres(value, system), 2)} ${system.areaUnit}';
-  String _volume(double value) =>
-      '${EstimateFormat.number(MeasurementPreferences.fromCubicMetres(value, system))} ${system.volumeUnit}';
-  String _days(double value) => EstimateFormat.number(value, 4);
+
+  String _number(double value, [int precision = 3]) =>
+      EstimateFormat.number(value, precision);
 
   @override
   Widget build(BuildContext context) {
-    final productivity = result.productivity;
-    final standard = productivity.standard;
     final labour = result.labour;
+    final productivity = result.productivity;
     final displayedArea = MeasurementPreferences.fromSquareMetres(
-      result.area,
+      result.netArea,
       system,
     );
     final displayUnitCost = EstimateCostCalculator.perUnit(
@@ -40,12 +39,12 @@ class PlasterResultScreen extends StatelessWidget {
       displayedArea,
     );
     return AppScaffold(
-      title: 'Calculation Result',
+      title: 'Paint Estimate',
       bodyBuilder: (context, padding) => ListView(
         padding: padding,
         children: [
           Text(
-            'Plaster Takeoff V2',
+            'Paint & Finishes V2',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
@@ -56,86 +55,92 @@ class PlasterResultScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Net Plaster Area'),
+                  Text(result.workType.label),
+                  const SizedBox(height: 5),
+                  const Text('Net Paint Area'),
                   Text(
-                    _area(result.area),
+                    _area(result.netArea),
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   Text(
-                    'Gross ${_area(result.grossArea)} − deductions ${_area(result.deductionArea)}',
+                    'Gross ${_area(result.grossArea)} − deductions '
+                    '${_area(result.deductionArea)}',
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          _section(context, 'Plaster Quantity', Icons.format_paint_outlined, [
-            _row(context, 'Plaster Type', type.label),
-            _row(context, 'Gross Area', _area(result.grossArea)),
-            _row(context, 'Opening Deductions', _area(result.deductionArea)),
-            for (final opening in result.takeoff.openings)
+          _section(
+            context,
+            'Paint / Finish Details',
+            Icons.format_paint_outlined,
+            [
+              _row(context, 'Work Type', result.workType.label),
+              _row(context, 'Gross Area', _area(result.grossArea)),
+              _row(context, 'Opening Deductions', _area(result.deductionArea)),
+              for (final opening in result.takeoff.openings)
+                _row(
+                  context,
+                  '${opening.name} × ${opening.quantity}',
+                  _area(OpeningCalculator.openingArea(opening)),
+                ),
+              _row(context, 'Net Paint Area', _area(result.netArea)),
+            ],
+          ),
+          _section(context, 'Material Requirement', Icons.inventory_2_outlined, [
+            for (final material in result.materials) ...[
+              Text(
+                material.input.kind.label,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              _row(context, 'Coats', '${material.input.coats}'),
               _row(
                 context,
-                '${opening.name} × ${opening.quantity}',
-                _area(OpeningCalculator.openingArea(opening)),
+                material.input.kind.coverageIsConsumption
+                    ? 'Consumption'
+                    : 'Coverage',
+                '${_number(material.input.coverage)} '
+                '${material.input.kind.coverageIsConsumption ? 'kg / m² / coat' : 'm² / ${material.input.kind.unit} / coat'}',
               ),
-            _row(context, 'Net Area', _area(result.area)),
-            _row(
-              context,
-              'Thickness',
-              '${EstimateFormat.number(result.thicknessMm)} mm',
-            ),
-            _row(
-              context,
-              'Mortar Ratio',
-              '${EstimateFormat.number(result.cementPart)} : ${EstimateFormat.number(result.sandPart)}',
-            ),
-            _row(
-              context,
-              'Wastage',
-              '${EstimateFormat.number(result.wastagePercent)}%',
-            ),
-            _row(context, 'Wet Volume', _volume(result.wetVolume)),
-            _row(context, 'Dry Volume', _volume(result.dryVolume)),
-            _row(
-              context,
-              'Cement',
-              '${EstimateFormat.number(result.cementBags, 2)} bags (50 kg)',
-            ),
-            _row(context, 'Sand', _volume(result.sandM3)),
-            _row(
-              context,
-              'Sand in Brass',
-              EstimateFormat.number(result.sandBrass),
-            ),
-            const Text(
-              'Dry factor 1.33. Wastage is applied once to dry material volume. '
-              'Cement bags are not rounded up for costing.',
-            ),
+              _row(
+                context,
+                'Base quantity',
+                '${_number(material.baseQuantity, 2)} ${material.input.kind.unit}',
+              ),
+              _row(
+                context,
+                'Wastage',
+                '${_number(material.input.wastagePercent)}% '
+                    '(${_number(material.wastageQuantity, 2)} ${material.input.kind.unit})',
+              ),
+              _row(
+                context,
+                'Required quantity',
+                '${_number(material.finalQuantity, 2)} ${material.input.kind.unit}',
+              ),
+              const Divider(height: 22),
+            ],
           ]),
           _section(context, 'Material Cost', Icons.payments_outlined, [
-            _row(
-              context,
-              'Cement Rate',
-              '${EstimateFormat.money(result.cementRate)} / 50 kg bag',
-            ),
-            _row(
-              context,
-              'Cement Cost',
-              EstimateFormat.money(result.cementCost),
-            ),
-            _row(
-              context,
-              'Sand Rate',
-              '${EstimateFormat.money(result.sandRate)} / m³',
-            ),
-            if (system == MeasurementSystem.imperial)
+            for (final material in result.materials) ...[
               _row(
                 context,
-                'Sand quantity for pricing',
-                '${EstimateFormat.number(result.sandM3)} m³',
+                '${material.input.kind.label} quantity',
+                '${_number(material.finalQuantity, 2)} ${material.input.kind.unit}',
               ),
-            _row(context, 'Sand Cost', EstimateFormat.money(result.sandCost)),
+              _row(
+                context,
+                '${material.input.kind.label} rate',
+                '${EstimateFormat.money(material.input.rate)} / ${material.input.kind.unit}',
+              ),
+              _row(
+                context,
+                '${material.input.kind.label} cost',
+                EstimateFormat.money(material.cost),
+              ),
+              const Divider(height: 22),
+            ],
             _row(
               context,
               'Total Material Cost',
@@ -143,59 +148,46 @@ class PlasterResultScreen extends StatelessWidget {
             ),
           ]),
           _section(context, 'Labour & Time', Icons.groups_outlined, [
-            _row(context, 'Standard Productivity', standard.name),
-            Text(standard.basis),
+            _row(context, 'Productivity', productivity.standard.name),
+            Text(productivity.standard.basis),
             const SizedBox(height: 10),
-            for (final role in [LabourRole.mason, LabourRole.helper])
+            for (final role in [LabourRole.painter, LabourRole.helper])
               _row(
                 context,
                 '${role.label} coefficient',
-                '${_days(standard.daysPerBaseQuantity[role]!)} day / ${_area(standard.baseQuantity)}',
-              ),
-            for (final role in [LabourRole.mason, LabourRole.helper])
-              _row(
-                context,
-                '${role.label} productivity',
-                '${_area(standard.baseQuantity / standard.daysPerBaseQuantity[role]!)} / person-day',
+                '${_number(productivity.standard.daysPerBaseQuantity[role]!)} day / '
+                    '${_area(productivity.standard.baseQuantity)}',
               ),
             _row(
               context,
               'Selected Crew',
-              '${productivity.crew[LabourRole.mason]} Mason(s) + '
+              '${productivity.crew[LabourRole.painter]} Painter(s) + '
                   '${productivity.crew[LabourRole.helper]} Helper(s)',
             ),
             _row(
               context,
-              'Selected crew productivity',
-              '${_area(productivity.crewOutputPerDay)} / day',
-            ),
-            _row(
-              context,
-              'Mason Mandays',
-              _days(productivity.mandays[LabourRole.mason]!),
+              'Painter Mandays',
+              _number(productivity.mandays[LabourRole.painter]!),
             ),
             _row(
               context,
               'Helper Mandays',
-              _days(productivity.mandays[LabourRole.helper]!),
+              _number(productivity.mandays[LabourRole.helper]!),
             ),
             _row(
               context,
               'Estimated Working Days',
-              _days(productivity.workingDays),
+              _number(productivity.workingDays),
             ),
-            Text(
-              'Duration = the greater of mason mandays ÷ masons and helper mandays ÷ helpers. '
-              'Assumes parallel work fronts; excludes curing, access delays and holidays.',
+            const Text(
+              'Duration = the greater of painter mandays ÷ painters and '
+              'helper mandays ÷ helpers. It excludes access constraints, '
+              'drying time, delays and holidays.',
             ),
-            if (type == PlasterType.ceiling)
-              const Text(
-                'Ceiling estimate: confirm productivity for overhead work and access.',
-              ),
             _row(
               context,
-              'Mason Daily Wage',
-              '${EstimateFormat.money(labour.dailyWages[LabourRole.mason]!)} / day',
+              'Painter Daily Wage',
+              '${EstimateFormat.money(labour.dailyWages[LabourRole.painter]!)} / day',
             ),
             _row(
               context,
@@ -204,8 +196,8 @@ class PlasterResultScreen extends StatelessWidget {
             ),
             _row(
               context,
-              'Mason Labour Cost',
-              EstimateFormat.money(labour.costs[LabourRole.mason]!),
+              'Painter Labour Cost',
+              EstimateFormat.money(labour.costs[LabourRole.painter]!),
             ),
             _row(
               context,
@@ -216,10 +208,6 @@ class PlasterResultScreen extends StatelessWidget {
               context,
               'Total Labour Cost',
               EstimateFormat.money(labour.totalCost),
-            ),
-            const Text(
-              'Labour cost uses each role’s required mandays, not full-crew '
-              'attendance rounded to whole days. Actual site duration may differ.',
             ),
           ]),
           _section(context, 'Total Cost', Icons.summarize_outlined, [
@@ -235,7 +223,7 @@ class PlasterResultScreen extends StatelessWidget {
             ),
             _row(
               context,
-              'Total Plaster Cost',
+              'Total Project Cost',
               EstimateFormat.money(result.totalCost),
             ),
             _row(
@@ -253,10 +241,6 @@ class PlasterResultScreen extends StatelessWidget {
                     ? 'Not applicable — net area is zero'
                     : EstimateFormat.money(result.costPerSquareMetre!),
               ),
-            const Text(
-              'Estimate covers the materials and two labour roles shown. '
-              'Scaffolding, transport, taxes, overheads and other site costs are excluded.',
-            ),
           ]),
           PrimaryButton(
             onPressed: () => Navigator.pop(context),
