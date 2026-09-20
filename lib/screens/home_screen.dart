@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/analytics_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
@@ -69,6 +70,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('concrete');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -84,6 +86,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('masonry');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -99,6 +102,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('plaster');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -114,6 +118,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('paint');
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const PaintScreen()),
@@ -127,6 +132,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('steel_weight');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -153,6 +159,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('volume');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -168,6 +175,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('excavation');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -194,6 +202,7 @@ class HomeScreen extends StatelessWidget {
                     color: colorScheme.primary,
                     compact: true,
                     onTap: () {
+                      AnalyticsService.logCalculatorOpened('unit_converter');
                       Navigator.push(
                         context,
                         MaterialPageRoute(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/excavation_calculator.dart';
+import '../services/analytics_service.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
@@ -39,6 +40,7 @@ class _ExcavationScreenState extends State<ExcavationScreen> {
   double? _v(TextEditingController c, String n) {
     final v = double.tryParse(c.text.trim());
     if (v == null || v <= 0) {
+      AnalyticsService.logCalculationError('excavation', 'invalid_input');
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -72,6 +74,7 @@ class _ExcavationScreenState extends State<ExcavationScreen> {
             width: width,
             depth: depth,
           );
+    AnalyticsService.logCalculationCompleted('excavation', workType: _type.name);
     Navigator.push(
       context,
       MaterialPageRoute(

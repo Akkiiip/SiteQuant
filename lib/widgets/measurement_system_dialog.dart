@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/analytics_service.dart';
 import '../services/measurement_system.dart';
 
 Future<void> showMeasurementSystemDialog(
@@ -46,7 +47,14 @@ Future<void> showMeasurementSystemDialog(
         actions: [
           TextButton(
             onPressed: () async {
+              final previous = MeasurementPreferences.system.value;
               await MeasurementPreferences.setSystem(selected);
+              if (previous != null && previous != selected) {
+                AnalyticsService.logUnitSystemChanged(
+                  fromSystem: previous.name,
+                  toSystem: selected.name,
+                );
+              }
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text('Continue'),

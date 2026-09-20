@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/opening_deduction.dart';
+import '../services/analytics_service.dart';
 import '../models/paint_result.dart';
 import '../models/productivity_standard.dart';
 import '../services/estimate_format.dart';
@@ -164,13 +165,15 @@ class _PaintScreenState extends State<PaintScreen> {
         },
       );
       FocusScope.of(context).unfocus();
-      Navigator.push(
+      AnalyticsService.logCalculationCompleted('paint', workType: _workType.name);
+    Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PaintResultScreen(result: result, system: _system),
         ),
       );
     } on ArgumentError catch (error) {
+      AnalyticsService.logCalculationError('paint', 'invalid_input');
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(error.message.toString())));
@@ -210,8 +213,7 @@ class _PaintScreenState extends State<PaintScreen> {
         'Deductions: ${_area(takeoff.deductionArea)}\n'
         'Net Paint Area: ${_area(takeoff.netArea)}',
       );
-    } on ArgumentError catch (error) {
-      return Text(error.message.toString());
+    } on ArgumentError catch (error) {      return Text(error.message.toString());
     }
   }
 
@@ -356,6 +358,7 @@ class _PaintScreenState extends State<PaintScreen> {
           _card('Opening Deductions', Icons.door_front_door_outlined, [
             OpeningDeductionsEditor(
               onChanged: (openings) => setState(() => _openings = openings),
+              onOpeningAdded: () => AnalyticsService.logOpeningAdded('paint'),
             ),
             _takeoffPreview(),
           ]),

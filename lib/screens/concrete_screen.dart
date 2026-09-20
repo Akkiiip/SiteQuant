@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/concrete_calculator.dart';
+import '../services/analytics_service.dart';
 import '../services/volume_calculator.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
@@ -205,6 +206,7 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
   }
 
   void _showValidationMessage(String message) {
+      AnalyticsService.logCalculationError('concrete', 'invalid_input');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -274,6 +276,7 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       wcRatio: wcRatio,
     );
 
+    AnalyticsService.logCalculationCompleted('concrete', workType: _selectedStructure.name.toLowerCase().replaceAll(' ', '_'));
     Navigator.push(
       context,
       MaterialPageRoute(

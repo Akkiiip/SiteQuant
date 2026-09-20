@@ -6,7 +6,12 @@ import 'dimension_input_field.dart';
 /// Reusable editor. Emits base-unit dimensions; calculation stays in services.
 class OpeningDeductionsEditor extends StatefulWidget {
   final ValueChanged<List<OpeningDeduction>> onChanged;
-  const OpeningDeductionsEditor({super.key, required this.onChanged});
+  final VoidCallback? onOpeningAdded;
+  const OpeningDeductionsEditor({
+    super.key,
+    required this.onChanged,
+    this.onOpeningAdded,
+  });
 
   @override
   State<OpeningDeductionsEditor> createState() =>
@@ -61,6 +66,7 @@ class _OpeningDeductionsEditorState extends State<OpeningDeductionsEditor> {
     }
     setState(() => _drafts.add(draft));
     _emit();
+    widget.onOpeningAdded?.call();
   }
 
   void _remove(_OpeningDraft draft) {

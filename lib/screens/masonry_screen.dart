@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/masonry_result.dart';
+import '../services/analytics_service.dart';
 import '../services/masonry_calculator.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
@@ -74,6 +75,7 @@ class _MasonryScreenState extends State<MasonryScreen> {
   };
 
   void _showError(String message) {
+      AnalyticsService.logCalculationError('masonry', 'invalid_input');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -154,6 +156,7 @@ class _MasonryScreenState extends State<MasonryScreen> {
       sandPart: sandPart,
       wastagePercent: wastage,
     );
+    AnalyticsService.logCalculationCompleted('masonry', workType: _type.name);
     Navigator.push(
       context,
       MaterialPageRoute(

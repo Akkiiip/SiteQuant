@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/opening_deduction.dart';
+import '../services/analytics_service.dart';
 import '../models/plaster_result.dart';
 import '../models/productivity_standard.dart';
 import '../services/estimate_format.dart';
@@ -132,7 +133,8 @@ class _PlasterScreenState extends State<PlasterScreen> {
         productivityStandard: _standard(),
       );
       FocusScope.of(context).unfocus();
-      Navigator.push(
+      AnalyticsService.logCalculationCompleted('plaster', workType: _type.name);
+    Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) =>
@@ -140,6 +142,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
         ),
       );
     } on ArgumentError catch (error) {
+      AnalyticsService.logCalculationError('plaster', 'invalid_input');
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(error.message.toString())));
@@ -178,8 +181,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
         'Deductions: ${area(takeoff.deductionArea)}\n'
         'Net Area: ${area(takeoff.netArea)}',
       );
-    } on ArgumentError catch (error) {
-      return Text(error.message.toString());
+    } on ArgumentError catch (error) {      return Text(error.message.toString());
     }
   }
 
@@ -203,8 +205,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
         'per ${EstimateFormat.number(basis, 2)} ${_system.areaUnit}.\n'
         '${standard.basis}',
       );
-    } on ArgumentError catch (error) {
-      return Text(error.message.toString());
+    } on ArgumentError catch (error) {      return Text(error.message.toString());
     }
   }
 
@@ -275,6 +276,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
           _card('Opening Deductions', Icons.door_front_door_outlined, [
             OpeningDeductionsEditor(
               onChanged: (openings) => setState(() => _openings = openings),
+              onOpeningAdded: () => AnalyticsService.logOpeningAdded('plaster'),
             ),
             _areaPreview(),
           ]),

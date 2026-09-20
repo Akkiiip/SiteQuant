@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/volume_result.dart';
+import '../services/analytics_service.dart';
 import '../services/volume_calculator.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
@@ -36,6 +37,7 @@ class _VolumeCalculatorScreenState extends State<VolumeCalculatorScreen> {
   double? _value(TextEditingController controller, String label) {
     final value = double.tryParse(controller.text.trim());
     if (value == null || value <= 0) {
+      AnalyticsService.logCalculationError('volume', 'invalid_input');
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -67,6 +69,7 @@ class _VolumeCalculatorScreenState extends State<VolumeCalculatorScreen> {
       _Shape.sphere => VolumeCalculator.sphere(diameter: a),
     };
     final unit = system.lengthUnit;
+    AnalyticsService.logCalculationCompleted('volume', workType: _shape.name);
     Navigator.push(
       context,
       MaterialPageRoute(

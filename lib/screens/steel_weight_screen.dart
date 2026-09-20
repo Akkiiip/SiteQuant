@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/steel_weight_calculator.dart';
+import '../services/analytics_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/primary_button.dart';
@@ -25,6 +26,7 @@ class _SteelWeightScreenState extends State<SteelWeightScreen> {
   }
 
   void _error(String message) {
+      AnalyticsService.logCalculationError('steel_weight', 'invalid_input');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -50,6 +52,7 @@ class _SteelWeightScreenState extends State<SteelWeightScreen> {
       barLength: length,
       barCount: count.round(),
     );
+    AnalyticsService.logCalculationCompleted('steel_weight');
     Navigator.push(
       context,
       MaterialPageRoute(
