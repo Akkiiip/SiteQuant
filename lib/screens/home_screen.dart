@@ -11,6 +11,7 @@ import 'plaster_screen.dart';
 import 'paint_screen.dart';
 import 'steel_weight_screen.dart';
 import 'settings_screen.dart';
+import 'shuttering_screen.dart';
 import 'unit_converter_screen.dart';
 import 'volume_calculator_screen.dart';
 
@@ -122,6 +123,21 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const PaintScreen()),
+                      );
+                    },
+                  ),
+                  DashboardCard(
+                    title: 'Shuttering',
+                    subtitle: 'Column • Beam • Slab',
+                    icon: Icons.construction_rounded,
+                    color: colorScheme.primary,
+                    compact: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ShutteringScreen(),
+                        ),
                       );
                     },
                   ),
