@@ -14,6 +14,7 @@ import 'settings_screen.dart';
 import 'shuttering_screen.dart';
 import 'unit_converter_screen.dart';
 import 'volume_calculator_screen.dart';
+import 'water_tank_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -137,6 +138,21 @@ class HomeScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const ShutteringScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  DashboardCard(
+                    title: 'Water Tank',
+                    subtitle: 'Rectangular • Circular RCC',
+                    icon: Icons.water_rounded,
+                    color: colorScheme.primary,
+                    compact: true,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const WaterTankScreen(),
                         ),
                       );
                     },
