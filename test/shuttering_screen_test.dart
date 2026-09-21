@@ -6,59 +6,47 @@ import 'package:site_quant/theme/app_theme.dart';
 import 'package:site_quant/widgets/shuttering_diagram.dart';
 
 void main() {
-  testWidgets(
-    'shuttering selector renders types, selection and diagrams at phone width',
-    (tester) async {
-      tester.view.physicalSize = const Size(360, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        MaterialApp(theme: AppTheme.lightTheme, home: const ShutteringScreen()),
-      );
+  testWidgets('shuttering selector renders types, selection and diagrams at phone width', (tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(theme: AppTheme.lightTheme, home: const ShutteringScreen()));
+    final list = find.byType(ListView);
+    expect(list, findsOneWidget);
+    expect(find.text('Column'), findsOneWidget);
+    expect(find.byType(ShutteringDiagram), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('shuttering-beam')));
+    await tester.pumpAndSettle();
+    expect(find.text('Calculate Shuttering'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    await tester.drag(list, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('Footing'), findsOneWidget);
+    expect(find.text('Wall'), findsOneWidget);
+    await tester.drag(list, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    expect(find.text('Slab'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-      final list = find.byType(ListView);
-      expect(list, findsOneWidget);
-      expect(find.text('Column'), findsOneWidget);
-      expect(find.byType(ShutteringDiagram), findsWidgets);
-
-      await tester.tap(find.byKey(const ValueKey('shuttering-beam')));
-      await tester.pumpAndSettle();
-      expect(find.text('Calculate Shuttering'), findsOneWidget);
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
-
-      await tester.drag(list, const Offset(0, -300));
-      await tester.pumpAndSettle();
-      expect(find.text('Footing'), findsOneWidget);
-      expect(find.text('Wall'), findsOneWidget);
-
-      await tester.drag(list, const Offset(0, -300));
-      await tester.pumpAndSettle();
-      expect(find.text('Slab'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets('every diagram painter renders at a bounded size', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Column(
-          children: [
-            for (final type in ShutteringType.values)
-              SizedBox(
-                width: 120,
-                height: 70,
-                child: ShutteringDiagram(type: type),
-              ),
-          ],
-        ),
-      ),
-    );
+  testWidgets('all diagrams render their engineering dimension labels', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: Column(children: [
+      for (final type in ShutteringType.values)
+        SizedBox(width: 120, height: 70, child: ShutteringDiagram(type: type)),
+    ])));
     expect(find.byType(ShutteringDiagram), findsNWidgets(5));
+    for (final entry in {
+      ShutteringType.column: 'L W H',
+      ShutteringType.beam: 'L B D',
+      ShutteringType.footing: 'L W D',
+      ShutteringType.wall: 'L H T',
+      ShutteringType.slab: 'L W T',
+    }.entries) {
+      expect(find.bySemanticsLabel('Shuttering ${entry.key.name} dimensions ${entry.value}'), findsOneWidget);
+    }
     expect(tester.takeException(), isNull);
   });
 }
