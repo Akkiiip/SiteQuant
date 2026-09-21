@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/shuttering_result.dart';
 import '../widgets/shuttering_diagram.dart';
+import 'shuttering_calculator_screen.dart';
 
 class ShutteringScreen extends StatefulWidget {
   const ShutteringScreen({super.key});
@@ -63,7 +64,15 @@ class _ShutteringScreenState extends State<ShutteringScreen> {
         padding: const EdgeInsets.only(bottom: 12),
         child: InkWell(
           key: ValueKey('shuttering-${type.name}'),
-          onTap: () => setState(() => selected = type),
+          onTap: () {
+            setState(() => selected = type);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ShutteringCalculatorScreen(type: type),
+              ),
+            );
+          },
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(16),

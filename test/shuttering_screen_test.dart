@@ -24,6 +24,9 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('shuttering-beam')));
       await tester.pumpAndSettle();
+      expect(find.text('Calculate Shuttering'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
 
       await tester.drag(list, const Offset(0, -300));

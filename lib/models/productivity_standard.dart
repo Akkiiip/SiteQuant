@@ -1,9 +1,10 @@
-enum LabourRole { mason, painter, helper }
+enum LabourRole { mason, painter, carpenter, helper }
 
 extension LabourRoleLabel on LabourRole {
   String get label => switch (this) {
     LabourRole.mason => 'Mason',
     LabourRole.painter => 'Painter',
+    LabourRole.carpenter => 'Carpenter',
     LabourRole.helper => 'Helper/Coolie',
   };
 }
