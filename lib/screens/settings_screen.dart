@@ -6,6 +6,7 @@ import '../widgets/section_header.dart';
 import '../services/measurement_system.dart';
 import '../services/ad_consent_manager.dart';
 import '../widgets/measurement_system_dialog.dart';
+import 'contact_developer_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   static final Uri _privacyPolicyUri = Uri.parse(
@@ -116,7 +117,7 @@ class SettingsScreen extends StatelessWidget {
             _Tile(
               icon: Icons.email_outlined,
               title: 'Contact Developer',
-              onTap: () => _message(context, 'Contact feature coming soon.'),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactDeveloperScreen())),
             ),
             const _Tile(
               icon: Icons.info_rounded,

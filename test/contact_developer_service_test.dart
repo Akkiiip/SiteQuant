@@ -1,0 +1,3 @@
+import 'package:flutter_test/flutter_test.dart';import 'package:site_quant/services/contact_developer_service.dart';
+class FakeLauncher implements ContactEmailLauncher { Uri? uri; final bool result; FakeLauncher(this.result);@override Future<bool> launch(Uri value)async{uri=value;return result;} }
+void main(){test('email subject and body are constructed',()async{final fake=FakeLauncher(true);final s=ContactDeveloperService(launcher:fake);await s.open(category:ContactCategory.bugReport,name:'A',senderEmail:'a@b.com',message:'Broken');expect(fake.uri!.queryParameters['subject'],'SiteQuant Bug Report');expect(fake.uri!.queryParameters['body'],contains('Message:\nBroken'));});}
