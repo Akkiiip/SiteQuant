@@ -7,13 +7,29 @@ import '../services/measurement_system.dart';
 import '../services/ad_consent_manager.dart';
 import '../widgets/measurement_system_dialog.dart';
 import 'contact_developer_screen.dart';
+import '../services/support_actions.dart';
 
 class SettingsScreen extends StatelessWidget {
   static final Uri _privacyPolicyUri = Uri.parse(
     'https://sites.google.com/view/sitequantprivacypolicy/home',
   );
 
-  const SettingsScreen({super.key});
+  final SupportActions supportActions;
+  const SettingsScreen({super.key, this.supportActions = const SupportActions()});
+
+  Future<void> _rate(BuildContext context) async {
+    final opened = await supportActions.rate();
+    if (!opened && context.mounted) {
+      _message(context, 'Could not open the Play Store listing. Please try again.');
+    }
+  }
+
+  Future<void> _share(BuildContext context) async {
+    final opened = await supportActions.share();
+    if (!opened && context.mounted) {
+      _message(context, 'Could not open sharing. Please try again.');
+    }
+  }
 
   void _message(BuildContext context, String text) {
     ScaffoldMessenger.of(context)
@@ -114,11 +130,7 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
-            _Tile(
-              icon: Icons.email_outlined,
-              title: 'Contact Developer',
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactDeveloperScreen())),
-            ),
+
             const _Tile(
               icon: Icons.info_rounded,
               title: 'Version',
@@ -133,14 +145,18 @@ class SettingsScreen extends StatelessWidget {
           children: [
             _Tile(
               icon: Icons.star_outline_rounded,
-              title: 'Rate App',
-              onTap: () =>
-                  _message(context, 'Available after Play Store release.'),
+              title: 'Rate SiteQuant',
+              onTap: () => _rate(context),
             ),
             _Tile(
               icon: Icons.share_outlined,
-              title: 'Share App',
-              onTap: () => _message(context, 'Share feature coming soon.'),
+              title: 'Share SiteQuant',
+              onTap: () => _share(context),
+            ),
+            _Tile(
+              icon: Icons.email_outlined,
+              title: 'Contact Developer',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactDeveloperScreen())),
             ),
           ],
         ),

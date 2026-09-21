@@ -18,6 +18,8 @@ void main() {
   testWidgets('Settings opens the existing Contact Developer destination', (t) async {
     await t.pumpWidget(const MaterialApp(home: SettingsScreen()));
     expect(find.text('Contact feature coming soon.'), findsNothing);
+    await t.drag(find.byType(ListView), const Offset(0, -240));
+    await t.pumpAndSettle();
     await t.tap(find.text('Contact Developer'));
     await t.pumpAndSettle();
     expect(find.byType(ContactDeveloperScreen), findsOneWidget);
@@ -74,5 +76,4 @@ void main() {
     expect(find.text('Email copied.'),findsOneWidget);
   });
 }
-
 
