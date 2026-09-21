@@ -6,7 +6,7 @@ import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
 import 'concrete_screen.dart';
 import 'excavation_screen.dart';
-import 'masonry_screen.dart';
+import 'masonry_v2_screen.dart';
 import 'plaster_screen.dart';
 import 'paint_screen.dart';
 import 'steel_weight_screen.dart';
@@ -92,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MasonryScreen(),
+                          builder: (_) => const MasonryV2Screen(),
                         ),
                       );
                     },

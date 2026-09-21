@@ -1,0 +1,2 @@
+import 'package:flutter/material.dart';import 'package:flutter_test/flutter_test.dart';import 'package:site_quant/screens/masonry_v2_screen.dart';
+void main(){testWidgets('selector shows all masonry materials at 360 px',(tester)async{await tester.binding.setSurfaceSize(const Size(360,800));await tester.pumpWidget(const MaterialApp(home:MasonryV2Screen()));expect(find.text('Clay Brick'),findsOneWidget);expect(find.text('AAC Block'),findsOneWidget);await tester.drag(find.byType(Scrollable),const Offset(0,-350));await tester.pump();expect(tester.takeException(),isNull);});}
