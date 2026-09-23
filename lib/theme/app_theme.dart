@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryBlue = Color(0xFF1F5FAE);
-  static const Color pageBackground = Color(0xFFF5F7FA);
-  static const Color ink = Color(0xFF172033);
+  static const Color primaryBlue = Color(0xFF0969F8);
+  static const Color navy = Color(0xFF071D49);
+  static const Color pageBackground = Color(0xFFF4F8FD);
+  static const Color border = Color(0xFFD8E4F2);
+  static const Color ink = Color(0xFF0A1D45);
   static const Color mutedInk = Color(0xFF667085);
 
   static final ThemeData lightTheme = ThemeData(
@@ -34,7 +36,7 @@ class AppTheme {
       surfaceTintColor: Colors.white,
       color: Colors.white,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -42,15 +44,15 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       floatingLabelStyle: const TextStyle(color: primaryBlue),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Color(0xFFD7DFEA)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: Color(0xFFD7DFEA)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: primaryBlue, width: 1.5),
       ),
     ),
@@ -61,7 +63,7 @@ class AppTheme {
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     ),
     chipTheme: ChipThemeData(

@@ -6,6 +6,9 @@ class AdMobConfig {
   static const String _androidTestBannerAdUnitId =
       'ca-app-pub-3940256099942544/6300978111';
 
+  static const String androidTestInterstitialAdUnitId =
+      'ca-app-pub-3940256099942544/1033173712';
+
   /// Supplied at release build time with
   /// --dart-define=ADMOB_BANNER_AD_UNIT_ID=ca-app-pub-.../...
   static const String _releaseBannerAdUnitId = String.fromEnvironment(

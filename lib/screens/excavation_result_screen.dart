@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/excavation_result.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/primary_button.dart';
 
 class ExcavationResultScreen extends StatelessWidget {
@@ -16,7 +17,6 @@ class ExcavationResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final system =
         MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     final volume = MeasurementPreferences.fromCubicMetres(
@@ -28,36 +28,9 @@ class ExcavationResultScreen extends StatelessWidget {
       bodyBuilder: (context, padding) => ListView(
         padding: padding,
         children: [
-          Text(
-            'Excavation Result',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: colors.primary,
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Excavation Volume',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: .78),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${volume.toStringAsFixed(3)} ${system.volumeUnit}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          ResultHeader(
+            label: 'Excavation Volume',
+            value: '${volume.toStringAsFixed(3)} ${system.volumeUnit}',
           ),
           const SizedBox(height: 12),
           Card(

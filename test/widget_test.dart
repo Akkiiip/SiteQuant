@@ -14,11 +14,12 @@ void main() {
     await tester.pumpWidget(const SiteQuantApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Civil Engineering Toolkit'), findsOneWidget);
-    await tester.tap(find.text('Concrete'));
+    await tester.tap(find.text('Calculators'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Concrete Calculator').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Concrete Calculator'), findsOneWidget);
+    expect(find.text('Concrete Calculator'), findsWidgets);
     expect(find.text('Custom Volume'), findsWidgets);
     expect(find.text('Volume'), findsOneWidget);
     expect(find.text('Wall'), findsNothing);

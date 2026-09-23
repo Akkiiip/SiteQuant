@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 import '../models/water_tank_input.dart';
 import '../widgets/water_tank_diagram.dart';
@@ -9,13 +10,12 @@ class WaterTankScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final blue = Theme.of(context).colorScheme.primary;
     return Scaffold(
-      backgroundColor: blue,
+      backgroundColor: AppTheme.pageBackground,
       appBar: AppBar(
         title: const Text('Water Tank'),
-        backgroundColor: blue,
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.pageBackground,
+        foregroundColor: AppTheme.ink,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -23,7 +23,7 @@ class WaterTankScreen extends StatelessWidget {
           const Text(
             'Select tank type',
             style: TextStyle(
-              color: Colors.white,
+              color: AppTheme.ink,
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),

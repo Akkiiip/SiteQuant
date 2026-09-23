@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/steel_weight_result.dart';
 import '../services/steel_weight_calculator.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/primary_button.dart';
 
 class SteelWeightResultScreen extends StatelessWidget {
@@ -11,65 +12,14 @@ class SteelWeightResultScreen extends StatelessWidget {
       value.toStringAsFixed(precision).replaceFirst(RegExp(r'\.?0+$'), '');
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return AppScaffold(
       title: 'Calculation Result',
       bodyBuilder: (context, padding) => ListView(
         padding: padding,
         children: [
-          Text(
-            'Steel Weight',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 5),
-          Text(
-            'Estimated reinforcement bar weight.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: colors.primary,
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .16),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.hardware_rounded,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total Weight',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: .78),
-                          ),
-                        ),
-                        Text(
-                          '${_number(result.totalWeight, 2)} kg',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          ResultHeader(
+            label: 'Total Weight',
+            value: '${_number(result.totalWeight, 2)} kg',
           ),
           const SizedBox(height: 12),
           Card(

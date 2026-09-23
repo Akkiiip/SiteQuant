@@ -4,7 +4,8 @@ import '../services/analytics_service.dart';
 import '../services/volume_calculator.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/calculator_ui.dart';
+import '../widgets/geometry_diagram.dart';
 import '../widgets/section_header.dart';
 import '../services/measurement_system.dart';
 import 'volume_result_screen.dart';
@@ -94,16 +95,17 @@ class _VolumeCalculatorScreenState extends State<VolumeCalculatorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Volume Takeoff',
-            style: Theme.of(context).textTheme.headlineMedium,
+          const CalculatorHeader(
+            title: 'Volume Calculator',
+            subtitle: 'Common geometric volumes',
           ),
-          const SizedBox(height: 5),
-          Text(
-            'Calculate common geometric volumes.',
-            style: Theme.of(context).textTheme.bodyMedium,
+          EngineeringDiagramCard(
+            label: '${_shape.label} geometry',
+            diagram: GeometryDiagram(kind: _shape.label),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          const MetricImperialToggle(),
+          const SizedBox(height: 18),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -171,9 +173,8 @@ class _VolumeCalculatorScreenState extends State<VolumeCalculatorScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
+          CalculatorCalculateButton(
             onPressed: _calculate,
-            icon: Icons.calculate_rounded,
             label: 'Calculate Volume',
           ),
         ],

@@ -12,7 +12,7 @@ import '../services/paint_reference_defaults.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/opening_deductions_editor.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/section_header.dart';
 import 'paint_result_screen.dart';
 
@@ -59,7 +59,7 @@ class _PaintScreenState extends State<PaintScreen> {
   int _painters = 1;
   bool _customProduct = false;
   int _helpers = 1;
-  late final MeasurementSystem _system;
+  late MeasurementSystem _system;
 
   @override
   void initState() {
@@ -191,8 +191,11 @@ class _PaintScreenState extends State<PaintScreen> {
         },
       );
       FocusScope.of(context).unfocus();
-      AnalyticsService.logCalculationCompleted('paint', workType: _workType.name);
-    Navigator.push(
+      AnalyticsService.logCalculationCompleted(
+        'paint',
+        workType: _workType.name,
+      );
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PaintResultScreen(result: result, system: _system),
@@ -239,7 +242,8 @@ class _PaintScreenState extends State<PaintScreen> {
         'Deductions: ${_area(takeoff.deductionArea)}\n'
         'Net Paint Area: ${_area(takeoff.netArea)}',
       );
-    } on ArgumentError catch (error) {      return Text(error.message.toString());
+    } on ArgumentError catch (error) {
+      return Text(error.message.toString());
     }
   }
 
@@ -278,19 +282,21 @@ class _PaintScreenState extends State<PaintScreen> {
               wholeNumber: true,
             ),
             const SizedBox(height: 12),
-            if (_customProduct) DimensionInputField(
-              controller: controllers.coverage,
-              label: '${kind.label} ${kind.coverageLabel}',
-              unit: null,
-              useMeasurementSystem: false,
-            ),
+            if (_customProduct)
+              DimensionInputField(
+                controller: controllers.coverage,
+                label: '${kind.label} ${kind.coverageLabel}',
+                unit: null,
+                useMeasurementSystem: false,
+              ),
             const SizedBox(height: 12),
-            if (_customProduct) DimensionInputField(
-              controller: controllers.wastage,
-              label: '${kind.label} wastage',
-              unit: '%',
-              useMeasurementSystem: false,
-            ),
+            if (_customProduct)
+              DimensionInputField(
+                controller: controllers.wastage,
+                label: '${kind.label} wastage',
+                unit: '%',
+                useMeasurementSystem: false,
+              ),
             const SizedBox(height: 12),
             DimensionInputField(
               controller: controllers.rate,
@@ -312,15 +318,14 @@ class _PaintScreenState extends State<PaintScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Paint & Finishes V2',
-            style: Theme.of(context).textTheme.headlineMedium,
+          CalculatorHeader(
+            title: 'Paint Calculator',
+            subtitle: 'Surface area, materials, labour and time',
           ),
-          const SizedBox(height: 5),
-          const Text(
-            'Estimate net quantities, material cost, labour and working days.',
+          MetricImperialToggle(
+            onChanged: (value) => setState(() => _system = value),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           _card('Work Type', Icons.format_paint_rounded, [
             DropdownButtonFormField<PaintWorkType>(
               initialValue: _workType,
@@ -357,9 +362,11 @@ class _PaintScreenState extends State<PaintScreen> {
                 if (!_customProduct) _applyReferenceDefaults();
               }),
             ),
-            Text(_customProduct
-                ? 'Enter product-specific coverage, wastage and rates.'
-                : 'Uses editable reference assumptions. Verify product coverage and local rates before purchase.'),
+            Text(
+              _customProduct
+                  ? 'Enter product-specific coverage, wastage and rates.'
+                  : 'Uses editable reference assumptions. Verify product coverage and local rates before purchase.',
+            ),
           ]),
           _card('Area Input', Icons.straighten_rounded, [
             SegmentedButton<_PaintAreaMode>(
@@ -416,18 +423,20 @@ class _PaintScreenState extends State<PaintScreen> {
               'No default paint productivity is used. Enter site-specific '
               'labour days per 10 m²; SiteQuant calculates mandays and duration.',
             ),
-            if (_customProduct) DimensionInputField(
-              controller: _painterCoefficient,
-              label: 'Painter coefficient',
-              unit: 'day / 10 m²',
-              useMeasurementSystem: false,
-            ),
-            if (_customProduct) DimensionInputField(
-              controller: _helperCoefficient,
-              label: 'Helper coefficient',
-              unit: 'day / 10 m²',
-              useMeasurementSystem: false,
-            ),
+            if (_customProduct)
+              DimensionInputField(
+                controller: _painterCoefficient,
+                label: 'Painter coefficient',
+                unit: 'day / 10 m²',
+                useMeasurementSystem: false,
+              ),
+            if (_customProduct)
+              DimensionInputField(
+                controller: _helperCoefficient,
+                label: 'Helper coefficient',
+                unit: 'day / 10 m²',
+                useMeasurementSystem: false,
+              ),
             _crewSelector(
               'Painters in crew',
               _painters,
@@ -457,9 +466,8 @@ class _PaintScreenState extends State<PaintScreen> {
               useMeasurementSystem: false,
             ),
           ]),
-          PrimaryButton(
+          CalculatorCalculateButton(
             onPressed: _calculate,
-            icon: Icons.calculate_rounded,
             label: 'Calculate Paint Estimate',
           ),
           const SizedBox(height: 16),

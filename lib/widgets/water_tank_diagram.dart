@@ -1,96 +1,182 @@
 import 'package:flutter/material.dart';
-
 import '../models/water_tank_input.dart';
+import 'engineering_drawing.dart';
 
 class WaterTankDiagram extends StatelessWidget {
   const WaterTankDiagram({super.key, required this.type});
-
   final WaterTankType type;
-
   @override
-  Widget build(BuildContext context) => AspectRatio(
-    aspectRatio: 2,
-    child: CustomPaint(painter: _WaterTankPainter(type)),
+  Widget build(BuildContext context) => Semantics(
+    label:
+        '${type.name} water tank diagram with internal dimensions, wall thickness, base slab and top slab',
+    child: AspectRatio(
+      aspectRatio: 2,
+      child: CustomPaint(painter: _WaterTankPainter(type)),
+    ),
   );
 }
 
 class _WaterTankPainter extends CustomPainter {
   const _WaterTankPainter(this.type);
   final WaterTankType type;
+  static const rcc = EngineeringDrawing.fillDark, water = Color(0x5572a7e8);
+  Paint get line => EngineeringDrawing.stroke();
+  void text(Canvas c, String label, Offset center) =>
+      EngineeringDrawing.label(c, label, center, size: 10);
 
+  void dimension(
+    Canvas c,
+    Offset a,
+    Offset b,
+    String label,
+    Offset at, {
+    Offset? ea,
+    Offset? eb,
+  }) => EngineeringDrawing.dimension(
+    c,
+    a,
+    b,
+    label,
+    objectFrom: ea ?? a,
+    objectTo: eb ?? b,
+    labelAt: at,
+  );
   @override
-  void paint(Canvas canvas, Size size) {
-    final line = Paint()
-      ..color = const Color(0xFF1F5FAE)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final rcc = Paint()..color = const Color(0xFF72A7E8);
-    final water = Paint()..color = const Color(0x5572A7E8);
-    final rect = Rect.fromLTWH(
-      size.width * .27,
-      size.height * .18,
-      size.width * .43,
-      size.height * .62,
-    );
-
-    if (type == WaterTankType.circular) {
-      final outer = Rect.fromCenter(
-        center: Offset(size.width * .5, size.height * .5),
-        width: size.width * .42,
-        height: size.height * .62,
+  void paint(Canvas c, Size s) {
+    final w = s.width, h = s.height;
+    if (type == WaterTankType.rectangular) {
+      final outer = Rect.fromLTWH(w * .25, h * .23, w * .46, h * .54);
+      final inner = Rect.fromLTWH(
+        outer.left + 10,
+        outer.top + 9,
+        outer.width - 20,
+        outer.height - 20,
       );
-      final inner = outer.deflate(size.width * .045);
-      canvas.drawOval(outer, rcc);
-      canvas.drawOval(inner, water);
-      canvas.drawOval(outer, line);
-      canvas.drawOval(inner, line);
-      _label(canvas, 'D', Offset(size.width * .48, size.height * .84));
-      _label(canvas, 'H', Offset(size.width * .75, size.height * .48));
-      _label(canvas, 'T', Offset(size.width * .18, size.height * .3));
-      return;
-    }
-
-    final inner = rect.deflate(size.width * .04);
-    canvas.drawRect(rect, rcc);
-    canvas.drawRect(inner, water);
-    canvas.drawRect(rect, line);
-    canvas.drawRect(inner, line);
-    canvas.drawLine(
-      Offset(rect.left, rect.top),
-      Offset(rect.left + 18, rect.top - 12),
-      line,
-    );
-    canvas.drawLine(
-      Offset(rect.right, rect.top),
-      Offset(rect.right + 18, rect.top - 12),
-      line,
-    );
-    canvas.drawLine(
-      Offset(rect.right + 18, rect.top - 12),
-      Offset(rect.right + 18, rect.bottom - 12),
-      line,
-    );
-    _label(canvas, 'L', Offset(size.width * .48, size.height * .85));
-    _label(canvas, 'W', Offset(size.width * .13, size.height * .52));
-    _label(canvas, 'H', Offset(size.width * .78, size.height * .48));
-  }
-
-  void _label(Canvas canvas, String value, Offset offset) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: value,
-        style: const TextStyle(
-          color: Color(0xFF174A87),
-          fontWeight: FontWeight.w700,
-          fontSize: 14,
+      c.drawRect(outer, Paint()..color = rcc);
+      c.drawRect(inner, Paint()..color = Colors.white);
+      c.drawRect(
+        Rect.fromLTRB(
+          inner.left,
+          inner.top + h * .22,
+          inner.right,
+          inner.bottom,
         ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    painter.paint(canvas, offset);
+        Paint()..color = water,
+      );
+      c.drawRect(outer, line);
+      c.drawRect(inner, line);
+      dimension(
+        c,
+        Offset(inner.left, h * .86),
+        Offset(inner.right, h * .86),
+        'Internal L',
+        Offset(w * .48, h * .93),
+        ea: inner.bottomLeft,
+        eb: inner.bottomRight,
+      );
+      dimension(
+        c,
+        Offset(w * .79, inner.top),
+        Offset(w * .79, inner.bottom),
+        'Internal H',
+        Offset(w * .88, h * .49),
+        ea: inner.topRight,
+        eb: inner.bottomRight,
+      );
+      dimension(
+        c,
+        Offset(outer.left, h * .15),
+        Offset(inner.left, h * .15),
+        'T',
+        Offset(w * .26, h * .08),
+        ea: outer.topLeft,
+        eb: inner.topLeft,
+      );
+      text(c, 'Top slab', Offset(w * .49, h * .19));
+      text(c, 'Base slab', Offset(w * .49, h * .81));
+      text(c, 'Internal W', Offset(w * .49, h * .51));
+    } else {
+      final cx = w * .49,
+          rx = w * .20,
+          topY = h * .26,
+          bottomY = h * .74,
+          ry = h * .075;
+      c.drawRect(
+        Rect.fromLTRB(cx - rx, topY, cx + rx, bottomY),
+        Paint()..color = rcc,
+      );
+      c.drawRect(
+        Rect.fromLTRB(cx - rx + 9, topY + 8, cx + rx - 9, bottomY - 9),
+        Paint()..color = Colors.white,
+      );
+      c.drawRect(
+        Rect.fromLTRB(cx - rx + 9, h * .48, cx + rx - 9, bottomY - 9),
+        Paint()..color = water,
+      );
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(cx, topY),
+          width: rx * 2,
+          height: ry * 2,
+        ),
+        Paint()..color = rcc,
+      );
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(cx, topY),
+          width: rx * 2 - 18,
+          height: ry * 2 - 7,
+        ),
+        Paint()..color = Colors.white,
+      );
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(cx, topY),
+          width: rx * 2,
+          height: ry * 2,
+        ),
+        line,
+      );
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(cx, bottomY),
+          width: rx * 2,
+          height: ry * 2,
+        ),
+        line,
+      );
+      c.drawLine(Offset(cx - rx, topY), Offset(cx - rx, bottomY), line);
+      c.drawLine(Offset(cx + rx, topY), Offset(cx + rx, bottomY), line);
+      dimension(
+        c,
+        Offset(cx - rx + 9, h * .13),
+        Offset(cx + rx - 9, h * .13),
+        'Internal D',
+        Offset(cx, h * .06),
+        ea: Offset(cx - rx + 9, topY),
+        eb: Offset(cx + rx - 9, topY),
+      );
+      dimension(
+        c,
+        Offset(cx + rx + 24, topY + 8),
+        Offset(cx + rx + 24, bottomY - 9),
+        'Internal H',
+        Offset(cx + rx + 44, h * .51),
+        ea: Offset(cx + rx, topY),
+        eb: Offset(cx + rx, bottomY),
+      );
+      dimension(
+        c,
+        Offset(cx - rx, h * .85),
+        Offset(cx - rx + 9, h * .85),
+        'T',
+        Offset(cx - rx + 5, h * .93),
+      );
+      text(c, 'Top slab', Offset(cx, h * .23));
+      text(c, 'Base slab', Offset(cx, h * .78));
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _WaterTankPainter oldDelegate) =>
-      oldDelegate.type != type;
+  bool shouldRepaint(covariant _WaterTankPainter old) => old.type != type;
 }

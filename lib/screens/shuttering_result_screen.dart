@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import '../widgets/calculator_ui.dart';
 import '../models/shuttering_result.dart';
 import '../models/productivity_standard.dart';
 import '../services/estimate_format.dart';
@@ -52,19 +54,24 @@ class ShutteringResultScreen extends StatelessWidget {
     );
     final crew =
         '${p.crew[LabourRole.carpenter]} Carpenter + ${p.crew[LabourRole.helper]} Helper';
-    final blue = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
-      backgroundColor: blue,
+      backgroundColor: AppTheme.pageBackground,
       appBar: AppBar(
         title: const Text('Shuttering Estimate'),
-        backgroundColor: blue,
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.pageBackground,
+        foregroundColor: AppTheme.ink,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              ResultHeader(
+                label: 'Shuttering Contact Area',
+                value: '${_n(r.contactArea)} m²',
+              ),
+              const SizedBox(height: 10),
               _card('Estimate Summary', [
                 _row('Contact Area', '${_n(r.contactArea)} m²'),
                 _row('Material / Panel Area', '${_n(r.panelArea)} m²'),

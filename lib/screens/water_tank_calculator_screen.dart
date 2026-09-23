@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import '../widgets/calculator_ui.dart';
 
 import '../models/productivity_standard.dart';
 import '../models/water_tank_input.dart';
 import '../services/estimate_validation.dart';
+import '../services/analytics_service.dart';
 import '../services/measurement_system.dart';
 import '../services/water_tank_calculator.dart';
 import '../services/water_tank_reference_defaults.dart';
 import '../widgets/water_tank_diagram.dart';
+import '../widgets/bottom_banner_slot.dart';
 import 'water_tank_result_screen.dart';
 
 class WaterTankCalculatorScreen extends StatefulWidget {
@@ -21,7 +24,7 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
   final _form = GlobalKey<FormState>();
   late final Map<String, TextEditingController> _values;
   int _masons = 1, _helpers = 1;
-  late final MeasurementSystem _system;
+  late MeasurementSystem _system;
   bool get _circular => widget.type == WaterTankType.circular;
 
   @override
@@ -131,12 +134,15 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
           LabourRole.helper: _number('Helper wage'),
         },
       );
+      final result = WaterTankCalculator.calculate(input);
+      AnalyticsService.logCalculationCompleted(
+        'water_tank',
+        workType: widget.type.name,
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => WaterTankResultScreen(
-            result: WaterTankCalculator.calculate(input),
-          ),
+          builder: (_) => WaterTankResultScreen(result: result),
         ),
       );
     } on ArgumentError {
@@ -163,6 +169,7 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Water Tank')),
+    bottomNavigationBar: const BottomBannerSlot(),
     body: SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -178,6 +185,10 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
                 ),
                 WaterTankDiagram(type: widget.type),
               ]),
+              MetricImperialToggle(
+                onChanged: (value) => setState(() => _system = value),
+              ),
+              const SizedBox(height: 12),
               _card([
                 Text(
                   'Internal dimensions',
@@ -231,9 +242,9 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
                   ],
                 ),
               ]),
-              FilledButton(
+              CalculatorCalculateButton(
                 onPressed: _calculate,
-                child: const Text('Calculate Water Tank'),
+                label: 'Calculate Water Tank',
               ),
             ],
           ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import '../widgets/calculator_ui.dart';
 import '../models/shuttering_result.dart';
 import '../models/productivity_standard.dart';
 import '../services/shuttering_calculator.dart';
@@ -6,6 +8,8 @@ import '../services/shuttering_reference_defaults.dart';
 import '../services/measurement_system.dart';
 import '../services/estimate_validation.dart';
 import '../widgets/shuttering_diagram.dart';
+import '../widgets/bottom_banner_slot.dart';
+import '../services/analytics_service.dart';
 import 'shuttering_result_screen.dart';
 
 class ShutteringCalculatorScreen extends StatefulWidget {
@@ -21,7 +25,7 @@ class _ShutteringCalculatorScreenState
   final _form = GlobalKey<FormState>();
   final _fields = <String, TextEditingController>{};
   int _carpenters = 1, _helpers = 1, _sides = 2;
-  late final MeasurementSystem _system;
+  late MeasurementSystem _system;
   String? _error;
   bool get _slab => widget.type == ShutteringType.slab;
   String get _widthLabel =>
@@ -156,6 +160,10 @@ class _ShutteringCalculatorScreenState
         },
       );
       FocusScope.of(context).unfocus();
+      AnalyticsService.logCalculationCompleted(
+        'shuttering',
+        workType: widget.type.name,
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -172,14 +180,14 @@ class _ShutteringCalculatorScreenState
 
   @override
   Widget build(BuildContext context) {
-    final blue = Theme.of(context).colorScheme.primary;
     return Scaffold(
-      backgroundColor: blue,
+      backgroundColor: AppTheme.pageBackground,
       appBar: AppBar(
         title: const Text('Shuttering'),
-        backgroundColor: blue,
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.pageBackground,
+        foregroundColor: AppTheme.ink,
       ),
+      bottomNavigationBar: const BottomBannerSlot(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -193,8 +201,12 @@ class _ShutteringCalculatorScreenState
                     widget.type.label,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  ShutteringDiagram(type: widget.type),
+                  ShutteringDiagram(type: widget.type, wallSides: _sides),
                 ]),
+                MetricImperialToggle(
+                  onChanged: (value) => setState(() => _system = value),
+                ),
+                const SizedBox(height: 12),
                 _card([
                   Text(
                     'Dimensions',
@@ -249,9 +261,9 @@ class _ShutteringCalculatorScreenState
                   ),
                 ]),
                 if (_error != null) _card([Text(_error!)]),
-                FilledButton(
+                CalculatorCalculateButton(
                   onPressed: _calculate,
-                  child: const Text('Calculate Shuttering'),
+                  label: 'Calculate Shuttering',
                 ),
               ],
             ),

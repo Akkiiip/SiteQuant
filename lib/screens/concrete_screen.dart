@@ -5,9 +5,10 @@ import '../services/analytics_service.dart';
 import '../services/volume_calculator.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
-import '../widgets/dimension_input_field.dart';
-import '../widgets/primary_button.dart';
-import '../widgets/section_header.dart';
+
+import '../widgets/calculator_ui.dart';
+import '../widgets/engineering_drawing.dart';
+
 import 'concrete_result_screen.dart';
 
 typedef _VolumeMethod =
@@ -206,7 +207,7 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
   }
 
   void _showValidationMessage(String message) {
-      AnalyticsService.logCalculationError('concrete', 'invalid_input');
+    AnalyticsService.logCalculationError('concrete', 'invalid_input');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -276,7 +277,10 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
       wcRatio: wcRatio,
     );
 
-    AnalyticsService.logCalculationCompleted('concrete', workType: _selectedStructure.name.toLowerCase().replaceAll(' ', '_'));
+    AnalyticsService.logCalculationCompleted(
+      'concrete',
+      workType: _selectedStructure.name.toLowerCase().replaceAll(' ', '_'),
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -294,9 +298,6 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
     return AppScaffold(
       title: 'Concrete Calculator',
       bodyBuilder: (context, padding) => SingleChildScrollView(
@@ -304,132 +305,62 @@ class _ConcreteScreenState extends State<ConcreteScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Concrete Takeoff', style: textTheme.headlineMedium),
-            const SizedBox(height: 5),
-            Text(
-              'Calculate concrete volume and material quantities.',
-              style: textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SectionHeader(
-                      title: 'Structure Type',
-                      icon: Icons.category_rounded,
-                      compact: true,
-                    ),
-                    const SizedBox(height: 14),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _structures.map((structure) {
-                        final isSelected = _selectedStructure == structure;
-                        return ChoiceChip(
-                          label: Text(structure.name),
-                          selected: isSelected,
-                          backgroundColor: colorScheme.surface,
-                          selectedColor: colorScheme.primary,
-                          side: BorderSide(color: colorScheme.primary),
-                          labelStyle: TextStyle(
-                            color: isSelected
-                                ? colorScheme.onPrimary
-                                : colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          onSelected: (_) => _changeStructure(structure),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
+            const CalculatorHeader(title: 'Concrete Calculator'),
+            CalculatorTypeTabs(
+              labels: _structures.map((structure) => structure.name).toList(),
+              selected: _selectedStructure.name,
+              onSelected: (name) => _changeStructure(
+                _structures.firstWhere((structure) => structure.name == name),
               ),
             ),
             const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SectionHeader(
-                      title: 'Dimensions',
-                      icon: Icons.straighten_rounded,
-                      compact: true,
-                    ),
-                    const SizedBox(height: 12),
-                    _StructureDiagram(kind: _selectedStructure.diagram),
-                    const SizedBox(height: 16),
-                    for (
-                      var index = 0;
-                      index < _selectedStructure.fields.length;
-                      index++
-                    ) ...[
-                      DimensionInputField(
-                        controller:
-                            _controllers[_selectedStructure.fields[index].key]!,
-                        label: _selectedStructure.fields[index].label,
-                        unit: _selectedStructure.fields[index].unit,
-                        wholeNumber:
-                            _selectedStructure.fields[index].wholeNumber,
-                      ),
-                      if (index < _selectedStructure.fields.length - 1)
-                        const SizedBox(height: 14),
-                    ],
-                  ],
-                ),
-              ),
+            EngineeringDiagramCard(
+              label: _selectedStructure.name,
+              diagram: _StructureDiagram(kind: _selectedStructure.diagram),
             ),
             const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SectionHeader(
-                      title: 'Mix Specification',
-                      icon: Icons.science_rounded,
-                      compact: true,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedGrade,
-                      decoration: const InputDecoration(
-                        labelText: 'Concrete Grade',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                      ),
-                      items: _grades
-                          .map(
-                            (grade) => DropdownMenuItem(
-                              value: grade,
-                              child: Text(grade),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) =>
-                          setState(() => _selectedGrade = value!),
-                    ),
-                    const SizedBox(height: 14),
-                    DimensionInputField(
-                      controller: _wcController,
-                      label: 'Water-Cement Ratio',
-                      unit: null,
-                    ),
-                    const SizedBox(height: 4),
-                    Text('Typical value: 0.45', style: textTheme.bodySmall),
-                  ],
-                ),
+            const MetricImperialToggle(),
+            const SizedBox(height: 16),
+            for (final field in _selectedStructure.fields)
+              CalculatorInputRow(
+                controller: _controllers[field.key]!,
+                label: field.label,
+                unit: field.unit,
+                wholeNumber: field.wholeNumber,
               ),
+            const SizedBox(height: 4),
+            DropdownButtonFormField<String>(
+              initialValue: _selectedGrade,
+              decoration: const InputDecoration(
+                labelText: 'Concrete Grade',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+              ),
+              items: _grades
+                  .map(
+                    (grade) =>
+                        DropdownMenuItem(value: grade, child: Text(grade)),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => _selectedGrade = value!),
             ),
-            const SizedBox(height: 24),
-            PrimaryButton(
+            const SizedBox(height: 12),
+            CalculatorAdvancedOptions(
+              children: [
+                CalculatorInputRow(
+                  controller: _wcController,
+                  label: 'Water-Cement Ratio',
+                  unit: null,
+                ),
+                Text(
+                  'Typical value: 0.45',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            CalculatorCalculateButton(
               onPressed: _calculate,
-              icon: Icons.calculate_rounded,
-              label: 'Calculate Quantity',
+              label: 'Calculate Concrete',
             ),
           ],
         ),
@@ -450,7 +381,7 @@ class _StructureDiagram extends StatelessWidget {
       child: ExcludeSemantics(
         child: SizedBox(
           width: double.infinity,
-          height: 84,
+          height: 170,
           child: CustomPaint(
             painter: _StructureDiagramPainter(
               kind,
@@ -466,107 +397,217 @@ class _StructureDiagram extends StatelessWidget {
 class _StructureDiagramPainter extends CustomPainter {
   final _DiagramKind kind;
   final Color color;
-
   const _StructureDiagramPainter(this.kind, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final w = size.width;
+    final h = size.height;
+    final stroke = Paint()
+      ..color = EngineeringDrawing.ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4;
+    final topFill = Paint()..color = EngineeringDrawing.fillLight;
+    final sideFill = Paint()..color = EngineeringDrawing.fillDark;
+    final frontFill = Paint()..color = EngineeringDrawing.fill;
+    final dimension = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.5
-      ..strokeJoin = StrokeJoin.round;
-    final rect = Rect.fromCenter(
-      center: size.center(Offset.zero),
-      width: size.width * 0.42,
-      height: size.height * 0.56,
+      ..strokeWidth = 1.1;
+
+    Path polygon(List<Offset> points) {
+      final path = Path()..moveTo(points.first.dx, points.first.dy);
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
+      }
+      return path..close();
+    }
+
+    void face(List<Offset> points, Paint fill) {
+      final path = polygon(points);
+      canvas.drawPath(path, fill);
+      canvas.drawPath(path, stroke);
+    }
+
+    void label(String text, Offset position) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: const TextStyle(
+            color: Color(0xFF0A1D45),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      painter.paint(canvas, position);
+    }
+
+    void arrow(
+      Offset from,
+      Offset to,
+      String text,
+      Offset textPosition, {
+      required Offset objectFrom,
+      required Offset objectTo,
+    }) => EngineeringDrawing.dimension(
+      canvas,
+      from,
+      to,
+      text,
+      objectFrom: objectFrom,
+      objectTo: objectTo,
+      labelAt: textPosition,
     );
 
-    switch (kind) {
-      case _DiagramKind.slab:
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromCenter(
-              center: rect.center,
-              width: rect.width,
-              height: rect.height * 0.34,
-            ),
-            const Radius.circular(4),
-          ),
-          paint,
-        );
-      case _DiagramKind.beam:
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromCenter(
-              center: rect.center,
-              width: rect.width,
-              height: rect.height * 0.55,
-            ),
-            const Radius.circular(4),
-          ),
-          paint,
-        );
-      case _DiagramKind.column:
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromCenter(
-              center: rect.center,
-              width: rect.width * 0.36,
-              height: rect.height,
-            ),
-            const Radius.circular(4),
-          ),
-          paint,
-        );
-      case _DiagramKind.footing:
-        canvas.drawRect(
-          Rect.fromCenter(
-            center: rect.center + Offset(0, rect.height * 0.22),
-            width: rect.width,
-            height: rect.height * 0.28,
-          ),
-          paint,
-        );
-        canvas.drawRect(
-          Rect.fromCenter(
-            center: rect.center - Offset(0, rect.height * 0.16),
-            width: rect.width * 0.32,
-            height: rect.height * 0.5,
-          ),
-          paint,
-        );
-      case _DiagramKind.circularColumn:
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: rect.center,
-            width: rect.width * 0.36,
-            height: rect.height,
-          ),
-          paint,
-        );
-      case _DiagramKind.circularFooting:
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: rect.center,
-            width: rect.width * 0.68,
-            height: rect.height * 0.68,
-          ),
-          paint,
-        );
-        canvas.drawLine(
-          Offset(rect.left + rect.width * 0.16, rect.center.dy),
-          Offset(rect.right - rect.width * 0.16, rect.center.dy),
-          paint,
-        );
-      case _DiagramKind.custom:
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-          paint,
-        );
-        canvas.drawLine(rect.topLeft, rect.bottomRight, paint);
-        canvas.drawLine(rect.topRight, rect.bottomLeft, paint);
+    if (kind == _DiagramKind.custom) {
+      final rect = Rect.fromCenter(
+        center: Offset(w / 2, h / 2),
+        width: w * .45,
+        height: h * .48,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(5)),
+        topFill,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(5)),
+        stroke,
+      );
+      canvas.drawLine(rect.topLeft, rect.bottomRight, dimension);
+      canvas.drawLine(rect.topRight, rect.bottomLeft, dimension);
+      label('V', Offset(w / 2 - 4, h / 2 - 8));
+      return;
     }
+
+    if (kind == _DiagramKind.circularColumn ||
+        kind == _DiagramKind.circularFooting) {
+      final tall = kind == _DiagramKind.circularColumn;
+      final cx = w * .52;
+      final cy = h * .46;
+      final rx = tall ? w * .15 : w * .25;
+      final ry = tall ? 16.0 : 25.0;
+      final height = tall ? h * .58 : h * .22;
+      final top = Rect.fromCenter(
+        center: Offset(cx, cy - height / 2),
+        width: rx * 2,
+        height: ry * 2,
+      );
+      final bottom = top.translate(0, height);
+      canvas.drawRect(
+        Rect.fromLTRB(cx - rx, top.center.dy, cx + rx, bottom.center.dy),
+        frontFill,
+      );
+      canvas.drawLine(
+        Offset(cx - rx, top.center.dy),
+        Offset(cx - rx, bottom.center.dy),
+        stroke,
+      );
+      canvas.drawLine(
+        Offset(cx + rx, top.center.dy),
+        Offset(cx + rx, bottom.center.dy),
+        stroke,
+      );
+      canvas.drawOval(bottom, stroke);
+      canvas.drawOval(top, topFill);
+      canvas.drawOval(top, stroke);
+      arrow(
+        Offset(cx - rx, h * .12),
+        Offset(cx + rx, h * .12),
+        'D',
+        Offset(cx - 4, h * .02),
+        objectFrom: Offset(cx - rx, top.center.dy),
+        objectTo: Offset(cx + rx, top.center.dy),
+      );
+      arrow(
+        Offset(cx + rx + 24, top.center.dy),
+        Offset(cx + rx + 24, bottom.center.dy),
+        tall ? 'H' : 'D',
+        Offset(cx + rx + 30, cy - 8),
+        objectFrom: Offset(cx + rx, top.center.dy),
+        objectTo: Offset(cx + rx, bottom.center.dy),
+      );
+      return;
+    }
+
+    final tall = kind == _DiagramKind.column;
+    final beam = kind == _DiagramKind.beam;
+    final left =
+        w *
+        (beam
+            ? .16
+            : kind == _DiagramKind.column
+            ? .41
+            : kind == _DiagramKind.footing
+            ? .20
+            : .23);
+    final right =
+        w *
+        (beam
+            ? .72
+            : kind == _DiagramKind.column
+            ? .57
+            : kind == _DiagramKind.footing
+            ? .72
+            : .68);
+    final topY =
+        h *
+        (tall
+            ? .12
+            : kind == _DiagramKind.footing
+            ? .43
+            : .31);
+    final depth = tall
+        ? h * .52
+        : beam
+        ? h * .28
+        : h * .14;
+    final skewX = w * (tall ? .07 : .12);
+    final skewY = h * .15;
+    final a = Offset(left, topY + skewY);
+    final b = Offset(right, topY + skewY);
+    final c = Offset(right + skewX, topY);
+    final d = Offset(left + skewX, topY);
+    face([a, b, c, d], topFill);
+    face([a, b, b.translate(0, depth), a.translate(0, depth)], frontFill);
+    face([b, c, c.translate(0, depth), b.translate(0, depth)], sideFill);
+    if (kind == _DiagramKind.footing) {
+      face([
+        Offset(w * .43, topY - h * .04),
+        Offset(w * .55, topY - h * .04),
+        Offset(w * .55, topY + h * .08),
+        Offset(w * .43, topY + h * .08),
+      ], sideFill);
+    }
+    arrow(
+      Offset(left, h * .86),
+      Offset(right, h * .86),
+      'L',
+      Offset((left + right) / 2, h * .88),
+      objectFrom: a.translate(0, depth),
+      objectTo: b.translate(0, depth),
+    );
+    arrow(
+      Offset(right + 8, topY + skewY - 8),
+      Offset(right + skewX + 8, topY - 8),
+      'B',
+      Offset(right + skewX / 2 + 10, topY - 16),
+      objectFrom: b,
+      objectTo: c,
+    );
+    arrow(
+      Offset(left - 15, a.dy),
+      Offset(left - 15, a.dy + depth),
+      tall
+          ? 'H'
+          : beam || kind == _DiagramKind.footing
+          ? 'D'
+          : 'T',
+      Offset(left - 31, a.dy + depth / 2 - 7),
+      objectFrom: a,
+      objectTo: a.translate(0, depth),
+    );
   }
 
   @override

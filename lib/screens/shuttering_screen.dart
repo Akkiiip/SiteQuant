@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+
 import '../models/shuttering_result.dart';
 import '../widgets/shuttering_diagram.dart';
 import 'shuttering_calculator_screen.dart';
@@ -22,11 +24,11 @@ class _ShutteringScreenState extends State<ShutteringScreen> {
   Widget build(BuildContext context) {
     final blue = Theme.of(context).colorScheme.primary;
     return Scaffold(
-      backgroundColor: blue,
+      backgroundColor: AppTheme.pageBackground,
       appBar: AppBar(
         title: const Text('Shuttering'),
-        backgroundColor: blue,
-        foregroundColor: Colors.white,
+        backgroundColor: AppTheme.pageBackground,
+        foregroundColor: AppTheme.ink,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -34,7 +36,7 @@ class _ShutteringScreenState extends State<ShutteringScreen> {
           const Text(
             'Select a shuttering element',
             style: TextStyle(
-              color: Colors.white,
+              color: AppTheme.ink,
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -42,7 +44,7 @@ class _ShutteringScreenState extends State<ShutteringScreen> {
           const SizedBox(height: 6),
           const Text(
             'Choose an element to review its shuttered contact faces.',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: AppTheme.mutedInk),
           ),
           const SizedBox(height: 18),
           for (final type in ShutteringType.values) _card(context, type, blue),

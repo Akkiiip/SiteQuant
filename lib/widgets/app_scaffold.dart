@@ -9,19 +9,21 @@ class AppScaffold extends StatelessWidget {
   final String title;
   final AppBodyBuilder bodyBuilder;
   final List<Widget>? actions;
+  final bool showBottomBanner;
 
   const AppScaffold({
     super.key,
     required this.title,
     required this.bodyBuilder,
     this.actions,
+    this.showBottomBanner = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title), actions: actions),
-      bottomNavigationBar: const BottomBannerSlot(),
+      bottomNavigationBar: showBottomBanner ? const BottomBannerSlot() : null,
       body: SafeArea(
         top: false,
         child: LayoutBuilder(

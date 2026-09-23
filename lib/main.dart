@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
-import 'screens/home_screen.dart';
+import 'screens/app_shell.dart';
 import 'services/measurement_system.dart';
 import 'widgets/measurement_system_dialog.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'services/interstitial_ad_service.dart';
+import 'services/analytics_service.dart';
 import 'firebase_options.dart';
 import 'services/ad_consent_manager.dart';
 
+final siteQuantNavigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,8 +20,19 @@ Future<void> main() async {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
+  AnalyticsService.calculationCompletedHandler =
+      InterstitialAdService.instance.onCalculationCompleted;
   runApp(const SiteQuantApp());
   unawaited(AdConsentManager.initialize());
+  AdConsentManager.canRequestAds.addListener(() {
+    if (AdConsentManager.canRequestAds.value)
+      unawaited(InterstitialAdService.instance.preload());
+  });
+  unawaited(
+    AdConsentManager.initialize().whenComplete(
+      InterstitialAdService.instance.preload,
+    ),
+  );
 }
 
 class SiteQuantApp extends StatelessWidget {
@@ -30,6 +44,7 @@ class SiteQuantApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SiteQuant',
       theme: AppTheme.lightTheme,
+      navigatorKey: siteQuantNavigatorKey,
       home: const _MeasurementSetupGate(),
     );
   }
@@ -70,7 +85,7 @@ class _MeasurementSetupGateState extends State<_MeasurementSetupGate> {
           });
           return const Scaffold(body: SizedBox.expand());
         }
-        return const HomeScreen();
+        return const SiteQuantShell();
       },
     );
   }

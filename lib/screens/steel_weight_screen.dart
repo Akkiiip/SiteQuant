@@ -4,7 +4,7 @@ import '../services/steel_weight_calculator.dart';
 import '../services/analytics_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/section_header.dart';
 import 'steel_weight_result_screen.dart';
 
@@ -26,7 +26,7 @@ class _SteelWeightScreenState extends State<SteelWeightScreen> {
   }
 
   void _error(String message) {
-      AnalyticsService.logCalculationError('steel_weight', 'invalid_input');
+    AnalyticsService.logCalculationError('steel_weight', 'invalid_input');
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -69,16 +69,11 @@ class _SteelWeightScreenState extends State<SteelWeightScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Bar Weight Takeoff',
-            style: Theme.of(context).textTheme.headlineMedium,
+          const CalculatorHeader(
+            title: 'Steel Weight Calculator',
+            subtitle: 'Reinforcement bar quantity',
           ),
-          const SizedBox(height: 5),
-          Text(
-            'Calculate reinforcement bar weights quickly.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -126,9 +121,8 @@ class _SteelWeightScreenState extends State<SteelWeightScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
+          CalculatorCalculateButton(
             onPressed: _calculate,
-            icon: Icons.calculate_rounded,
             label: 'Calculate Weight',
           ),
         ],

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 /// Narrow boundary around Firebase Analytics so product code never depends on
@@ -33,23 +34,23 @@ class AnalyticsService {
 
   // Lazy construction prevents Analytics from becoming a startup dependency.
   static AnalyticsEventLogger? _logger;
+  static VoidCallback? calculationCompletedHandler;
 
   static void logCalculatorOpened(String calculator) =>
       _send('calculator_opened', {'calculator': calculator});
 
-  static void logCalculationCompleted(
-    String calculator, {
-    String? workType,
-  }) => _send('calculation_completed', {
-    'calculator': calculator,
-    if (workType != null && workType.isNotEmpty) 'work_type': workType,
-  });
+  static void logCalculationCompleted(String calculator, {String? workType}) {
+    _send('calculation_completed', {
+      'calculator': calculator,
+      if (workType != null && workType.isNotEmpty) 'work_type': workType,
+    });
+    calculationCompletedHandler?.call();
+  }
 
-  static void logCalculationError(String calculator, String errorType) =>
-      _send('calculation_error', {
-        'calculator': calculator,
-        'error_type': errorType,
-      });
+  static void logCalculationError(String calculator, String errorType) => _send(
+    'calculation_error',
+    {'calculator': calculator, 'error_type': errorType},
+  );
 
   static void logUnitSystemChanged({
     required String fromSystem,
@@ -62,6 +63,16 @@ class AnalyticsService {
   static void logOpeningAdded(String calculator) =>
       _send('opening_added', {'calculator': calculator});
 
+  static void logInterstitialLoadAttempted() =>
+      _send('interstitial_load_attempted', {});
+  static void logInterstitialLoaded() => _send('interstitial_loaded', {});
+  static void logInterstitialLoadFailed() =>
+      _send('interstitial_load_failed', {});
+  static void logInterstitialShowAttempted() =>
+      _send('interstitial_show_attempted', {});
+  static void logInterstitialShown() => _send('interstitial_shown', {});
+  static void logInterstitialFailed() => _send('interstitial_failed', {});
+  static void logInterstitialDismissed() => _send('interstitial_dismissed', {});
   static void _send(String name, Map<String, Object> parameters) {
     try {
       final logger = _logger ??= FirebaseAnalyticsEventLogger(

@@ -11,7 +11,7 @@ import '../services/plaster_productivity.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
 import '../widgets/opening_deductions_editor.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/section_header.dart';
 import 'plaster_result_screen.dart';
 
@@ -38,7 +38,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
   bool _siteProductivity = false;
   int _masons = 1, _helpers = 1;
   List<OpeningDeduction> _openings = [];
-  late final MeasurementSystem _system;
+  late MeasurementSystem _system;
 
   List<TextEditingController> get _controllers => [
     _length,
@@ -134,7 +134,7 @@ class _PlasterScreenState extends State<PlasterScreen> {
       );
       FocusScope.of(context).unfocus();
       AnalyticsService.logCalculationCompleted('plaster', workType: _type.name);
-    Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) =>
@@ -181,7 +181,8 @@ class _PlasterScreenState extends State<PlasterScreen> {
         'Deductions: ${area(takeoff.deductionArea)}\n'
         'Net Area: ${area(takeoff.netArea)}',
       );
-    } on ArgumentError catch (error) {      return Text(error.message.toString());
+    } on ArgumentError catch (error) {
+      return Text(error.message.toString());
     }
   }
 
@@ -205,7 +206,8 @@ class _PlasterScreenState extends State<PlasterScreen> {
         'per ${EstimateFormat.number(basis, 2)} ${_system.areaUnit}.\n'
         '${standard.basis}',
       );
-    } on ArgumentError catch (error) {      return Text(error.message.toString());
+    } on ArgumentError catch (error) {
+      return Text(error.message.toString());
     }
   }
 
@@ -230,15 +232,14 @@ class _PlasterScreenState extends State<PlasterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Plaster Takeoff V2',
-            style: Theme.of(context).textTheme.headlineMedium,
+          CalculatorHeader(
+            title: 'Plaster Calculator',
+            subtitle: 'Area, materials, labour and time',
           ),
-          const SizedBox(height: 5),
-          const Text(
-            'Estimate net quantities, material cost, labour and working days.',
+          MetricImperialToggle(
+            onChanged: (value) => setState(() => _system = value),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
           _card('Plaster Type', Icons.format_paint_rounded, [
             SegmentedButton<PlasterType>(
               segments: const [
@@ -380,9 +381,8 @@ class _PlasterScreenState extends State<PlasterScreen> {
               useMeasurementSystem: false,
             ),
           ]),
-          PrimaryButton(
+          CalculatorCalculateButton(
             onPressed: _calculate,
-            icon: Icons.calculate_rounded,
             label: 'Calculate Plaster',
           ),
           const SizedBox(height: 16),

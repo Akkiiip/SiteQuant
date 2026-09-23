@@ -101,7 +101,7 @@ void main() {
         .widget<ShutteringResultScreen>(find.byType(ShutteringResultScreen))
         .result;
     expect(r.contactArea, closeTo(9.290304, .000001));
-    expect(find.text('9.29 m²'), findsOneWidget);
+    expect(find.text('9.29 m²'), findsWidgets);
   });
   testWidgets('wall side selection and editable settings reach engine', (
     t,

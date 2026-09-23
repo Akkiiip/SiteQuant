@@ -4,7 +4,8 @@ import '../services/analytics_service.dart';
 import '../services/measurement_system.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dimension_input_field.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/calculator_ui.dart';
+import '../widgets/geometry_diagram.dart';
 import '../widgets/section_header.dart';
 import 'excavation_result_screen.dart';
 
@@ -74,7 +75,10 @@ class _ExcavationScreenState extends State<ExcavationScreen> {
             width: width,
             depth: depth,
           );
-    AnalyticsService.logCalculationCompleted('excavation', workType: _type.name);
+    AnalyticsService.logCalculationCompleted(
+      'excavation',
+      workType: _type.name,
+    );
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -91,11 +95,14 @@ class _ExcavationScreenState extends State<ExcavationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Excavation Takeoff',
-            style: Theme.of(c).textTheme.headlineMedium,
+          const CalculatorHeader(title: 'Excavation Calculator'),
+          EngineeringDiagramCard(
+            label: '${_type.label} excavation',
+            diagram: GeometryDiagram(kind: _type.label),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          const MetricImperialToggle(),
+          const SizedBox(height: 18),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(18),
@@ -151,11 +158,7 @@ class _ExcavationScreenState extends State<ExcavationScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
-            onPressed: _go,
-            icon: Icons.calculate_rounded,
-            label: 'Calculate Volume',
-          ),
+          CalculatorCalculateButton(onPressed: _go, label: 'Calculate Volume'),
         ],
       ),
     ),

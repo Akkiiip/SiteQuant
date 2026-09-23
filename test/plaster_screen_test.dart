@@ -48,13 +48,16 @@ Finder resultScrollable() => find
     .first;
 Future<void> scrollResult(WidgetTester tester, Finder target) async {
   final scrollable = resultScrollable();
-  final viewportHeight = tester.view.physicalSize.height;
+  final viewport = tester.getRect(scrollable);
   for (var attempt = 0; attempt < 16; attempt++) {
     final matches = target.evaluate();
     if (matches.isNotEmpty) {
       final rect = tester.getRect(target.first);
-      if (rect.center.dy >= 0 && rect.center.dy <= viewportHeight) return;
-      final delta = rect.center.dy > viewportHeight
+      if (rect.center.dy >= viewport.top + 8 &&
+          rect.center.dy <= viewport.bottom - 12) {
+        return;
+      }
+      final delta = rect.center.dy > viewport.bottom - 12
           ? const Offset(0, -220)
           : const Offset(0, 220);
       await tester.drag(scrollable, delta);
@@ -99,7 +102,8 @@ void main() {
     (tester) async {
       await tester.pumpWidget(const SiteQuantApp());
       await tester.pumpAndSettle();
-      await tapVisible(tester, find.text('Plaster Calculator'));
+      await tapVisible(tester, find.text('Calculators'));
+      await tapVisible(tester, find.text('Plaster Calculator').first);
       await enter(tester, 'Wall Length', '10.786');
       await enter(tester, 'Wall Height', '10');
       await tapVisible(tester, find.text('Add opening'));

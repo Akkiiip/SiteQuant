@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/volume_result.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/calculator_ui.dart';
 import '../widgets/primary_button.dart';
 
 class VolumeResultScreen extends StatelessWidget {
@@ -16,30 +17,14 @@ class VolumeResultScreen extends StatelessWidget {
       value.toStringAsFixed(p).replaceFirst(RegExp(r'\.?0+$'), '');
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return AppScaffold(
       title: 'Calculation Result',
       bodyBuilder: (context, padding) => ListView(
         padding: padding,
         children: [
-          Text(
-            'Volume Result',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 16),
-          Card(
-            color: colors.primary,
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Text(
-                '${_n(result.m3)} m³',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+          ResultHeader(
+            label: 'Calculated Volume',
+            value: '${_n(result.m3)} m³',
           ),
           const SizedBox(height: 12),
           Card(

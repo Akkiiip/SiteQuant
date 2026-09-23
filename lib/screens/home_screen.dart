@@ -4,6 +4,7 @@ import '../services/analytics_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/section_header.dart';
+import '../widgets/home_adaptive_banner_slot.dart';
 import 'concrete_screen.dart';
 import 'excavation_screen.dart';
 import 'masonry_v2_screen.dart';
@@ -25,6 +26,7 @@ class HomeScreen extends StatelessWidget {
 
     return AppScaffold(
       title: 'SiteQuant',
+      showBottomBanner: false,
       actions: [
         IconButton(
           icon: const Icon(Icons.settings_rounded),
@@ -55,10 +57,12 @@ class HomeScreen extends StatelessWidget {
           return ListView(
             padding: padding,
             children: [
-              _HomeHero(color: colorScheme.primary),
-              const SizedBox(height: 28),
+              const _HomeHeader(),
+              const SizedBox(height: 12),
+              const HomeAdaptiveBannerSlot(),
+              const SizedBox(height: 20),
               const SectionHeader(
-                title: 'Material Calculators',
+                title: 'Quick Calculators',
                 subtitle: 'Estimate quantities before procurement',
               ),
               const SizedBox(height: 12),
@@ -253,63 +257,14 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _HomeHero extends StatelessWidget {
-  final Color color;
-
-  const _HomeHero({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: color,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.architecture_rounded,
-                color: Colors.white,
-                size: 29,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Civil Engineering Toolkit',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Accurate quantities for site planning.',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader();
+  @override Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Text('SiteQuant', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+    const SizedBox(height: 3),
+    Text('Civil Engineering Calculators', style: Theme.of(context).textTheme.bodyLarge),
+  ]);
 }
-
 class _CalculatorGrid extends StatelessWidget {
   final int crossAxisCount;
   final List<Widget> children;

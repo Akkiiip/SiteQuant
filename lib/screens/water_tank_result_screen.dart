@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/calculator_ui.dart';
 
 import '../models/productivity_standard.dart';
 import '../models/water_tank_input.dart';
@@ -56,6 +57,11 @@ class WaterTankResultScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              ResultHeader(
+                label: 'RCC Quantity',
+                value: '${_number(result.totalRccVolume)} m³',
+              ),
+              const SizedBox(height: 10),
               _card('Water Tank', [
                 _row(
                   'Tank Type',
