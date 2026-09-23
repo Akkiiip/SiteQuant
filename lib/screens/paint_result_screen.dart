@@ -25,6 +25,9 @@ class PaintResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final labour = result.labour;
     final productivity = result.productivity;
+    final puttyMaterials = result.materials
+        .where((material) => material.input.kind == PaintMaterialKind.putty)
+        .toList();
     final displayedArea = MeasurementPreferences.fromSquareMetres(
       result.netArea,
       system,
@@ -51,6 +54,26 @@ class PaintResultScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
+          if (puttyMaterials.isNotEmpty &&
+              puttyMaterials.single.input.puttyPackSizeKg != null) ...[
+            _section(context, 'Putty Packaging', Icons.inventory_2_outlined, [
+              _row(
+                context,
+                'Required quantity',
+                '${_number(puttyMaterials.single.finalQuantity)} kg',
+              ),
+              _row(
+                context,
+                'Pack size (editable reference)',
+                '${_number(puttyMaterials.single.input.puttyPackSizeKg!)} kg',
+              ),
+              _row(
+                context,
+                'Approx. packs/bags',
+                '${puttyMaterials.single.approximatePacks}',
+              ),
+            ]),
+          ],
           _section(context, 'Cost Summary', Icons.summarize_outlined, [
             _row(
               context,
@@ -104,6 +127,15 @@ class PaintResultScreen extends StatelessWidget {
                   '${material.input.kind.label} coverage',
                   _number(material.input.coverage),
                 ),
+                if (material.input.kind == PaintMaterialKind.putty)
+                  _row(
+                    context,
+                    'Putty coverage basis',
+                    material.input.puttyCoverageBasis ==
+                            PuttyCoverageBasis.completeTwoCoats
+                        ? 'Complete two-coat application'
+                        : 'Per coat',
+                  ),
                 _row(
                   context,
                   '${material.input.kind.label} wastage',

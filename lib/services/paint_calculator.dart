@@ -76,12 +76,22 @@ class PaintCalculator {
   ) {
     EstimateValidation.count(input.coats, '${input.kind.label} coats');
     EstimateValidation.number(input.coverage, '${input.kind.label} coverage');
+    if (input.puttyPackSizeKg != null) {
+      if (input.kind != PaintMaterialKind.putty) {
+        throw ArgumentError('Pack size is only supported for putty.');
+      }
+      EstimateValidation.number(input.puttyPackSizeKg!, 'Putty pack size');
+    }
     EstimateValidation.number(
       input.wastagePercent,
       '${input.kind.label} wastage',
       allowZero: true,
     );
-    final base = input.kind.coverageIsConsumption
+    final base =
+        input.kind == PaintMaterialKind.putty &&
+            input.puttyCoverageBasis == PuttyCoverageBasis.completeTwoCoats
+        ? netArea * input.coats / 2 / input.coverage
+        : input.kind.coverageIsConsumption
         ? netArea * input.coats * input.coverage
         : netArea * input.coats / input.coverage;
     final finalQuantity = EstimateValidation.number(

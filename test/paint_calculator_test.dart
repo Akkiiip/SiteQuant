@@ -5,6 +5,7 @@ import 'package:site_quant/models/productivity_standard.dart';
 import 'package:site_quant/services/measurement_system.dart';
 import 'package:site_quant/services/opening_calculator.dart';
 import 'package:site_quant/services/paint_calculator.dart';
+import 'package:site_quant/services/paint_reference_defaults.dart';
 
 const door = OpeningDeduction(
   name: 'Door',
@@ -61,7 +62,160 @@ PaintResult estimate({
   dailyWages: {LabourRole.painter: painterWage, LabourRole.helper: helperWage},
 );
 
+PaintResult referenceEstimate(
+  PaintWorkType type, {
+  int painters = 1,
+  int helpers = 1,
+}) {
+  final preset = PaintReferenceDefaults.forWorkType(type);
+  return PaintCalculator.calculate(
+    workType: type,
+    grossArea: 100,
+    materials: [
+      for (final entry in preset.materials.entries)
+        PaintMaterialInput(
+          kind: entry.key,
+          coats: entry.value.coats,
+          coverage: entry.value.coverage,
+          wastagePercent: entry.value.wastagePercent,
+          rate: entry.value.rate,
+          puttyCoverageBasis: entry.value.puttyCoverageBasis,
+          puttyPackSizeKg: entry.value.puttyPackSizeKg,
+        ),
+    ],
+    painterDaysPer10M2: preset.painterDaysPer10M2,
+    helperDaysPer10M2: preset.helperDaysPer10M2,
+    crew: {LabourRole.painter: painters, LabourRole.helper: helpers},
+    dailyWages: {LabourRole.painter: 900, LabourRole.helper: 600},
+  );
+}
+
 void main() {
+  test('60 brass is 6000 sq ft or 557.41824 m²', () {
+    const squareFeet = 60 * 100.0;
+    final squareMetres = MeasurementPreferences.toSquareMetres(
+      squareFeet,
+      MeasurementSystem.imperial,
+    );
+    expect(squareFeet, 6000);
+    expect(squareMetres, closeTo(557.41824, 1e-5));
+  });
+
+  test('two-coat putty reference is not multiplied by two again', () {
+    final reference = PaintReferenceDefaults.forWorkType(
+      PaintWorkType.puttyOnly,
+    ).materials[PaintMaterialKind.putty]!;
+    expect(reference.puttyCoverageBasis, PuttyCoverageBasis.completeTwoCoats);
+    expect(reference.coverageBasis, contains('complete two-coat'));
+    final area = MeasurementPreferences.toSquareMetres(
+      6000,
+      MeasurementSystem.imperial,
+    );
+    final result = estimate(
+      type: PaintWorkType.puttyOnly,
+      area: area,
+      materials: [
+        PaintMaterialInput(
+          kind: PaintMaterialKind.putty,
+          coats: reference.coats,
+          coverage: reference.coverage,
+          wastagePercent: reference.wastagePercent,
+          rate: reference.rate,
+          puttyCoverageBasis: reference.puttyCoverageBasis,
+          puttyPackSizeKg: reference.puttyPackSizeKg,
+        ),
+      ],
+    );
+    final putty = result.materials.single;
+    expect(putty.baseQuantity, closeTo(area / 1.16, 1e-8));
+    expect(putty.finalQuantity, closeTo(area / 1.16 * 1.05, 1e-8));
+    expect(putty.finalQuantity, closeTo(504.5596, 1e-3));
+    expect(putty.approximatePacks, 26);
+  });
+
+  test('putty 20, 30 and 40 kg packs round up without changing kg', () {
+    final area = MeasurementPreferences.toSquareMetres(
+      6000,
+      MeasurementSystem.imperial,
+    );
+    double? requiredKg;
+    for (final (packSize, expectedPacks) in [
+      (20.0, 26),
+      (30.0, 17),
+      (40.0, 13),
+    ]) {
+      final putty = estimate(
+        type: PaintWorkType.puttyOnly,
+        area: area,
+        materials: [
+          PaintMaterialInput(
+            kind: PaintMaterialKind.putty,
+            coats: 2,
+            coverage: 1.16,
+            wastagePercent: 5,
+            rate: 35,
+            puttyCoverageBasis: PuttyCoverageBasis.completeTwoCoats,
+            puttyPackSizeKg: packSize,
+          ),
+        ],
+      ).materials.single;
+      expect(putty.approximatePacks, expectedPacks);
+      requiredKg ??= putty.finalQuantity;
+      expect(putty.finalQuantity, requiredKg);
+    }
+  });
+
+  test('custom per-coat putty coverage retains per-coat calculation', () {
+    final putty = estimate(
+      type: PaintWorkType.puttyOnly,
+      area: 100,
+      materials: [material(PaintMaterialKind.putty, coats: 2, coverage: 2)],
+    ).materials.single;
+    expect(putty.baseQuantity, 100);
+  });
+
+  test('100 m² two-coat acrylic reference uses 0.54/0.54 days per 10 m²', () {
+    final one = referenceEstimate(PaintWorkType.paintOnly);
+    final two = referenceEstimate(
+      PaintWorkType.paintOnly,
+      painters: 2,
+      helpers: 2,
+    );
+    expect(one.productivity.mandays[LabourRole.painter], closeTo(5.4, 1e-10));
+    expect(one.productivity.mandays[LabourRole.helper], closeTo(5.4, 1e-10));
+    expect(one.productivity.workingDays, closeTo(5.4, 1e-10));
+    expect(two.productivity.mandays, one.productivity.mandays);
+    expect(two.productivity.workingDays, closeTo(2.7, 1e-10));
+  });
+
+  test(
+    '100 m² one-coat wall primer reference uses 0.40/0.20 days per 10 m²',
+    () {
+      final one = referenceEstimate(PaintWorkType.primerOnly);
+      final two = referenceEstimate(
+        PaintWorkType.primerOnly,
+        painters: 2,
+        helpers: 2,
+      );
+      expect(one.productivity.mandays[LabourRole.painter], closeTo(4.0, 1e-10));
+      expect(one.productivity.mandays[LabourRole.helper], closeTo(2.0, 1e-10));
+      expect(one.productivity.workingDays, closeTo(4.0, 1e-10));
+      expect(two.productivity.mandays, one.productivity.mandays);
+      expect(two.productivity.workingDays, closeTo(2.0, 1e-10));
+    },
+  );
+
+  test('every Paint work type has a scoped, editable labour reference', () {
+    for (final type in PaintWorkType.values) {
+      final preset = PaintReferenceDefaults.forWorkType(type);
+      expect(preset.painterDaysPer10M2, greaterThan(0));
+      expect(preset.helperDaysPer10M2, greaterThan(0));
+      expect(preset.labourNote, contains('Editable'));
+      if (type != PaintWorkType.paintOnly && type != PaintWorkType.primerOnly) {
+        expect(preset.labourNote, contains('Site Reference Assumption'));
+      }
+    }
+  });
   test(
     'gross, one opening, multiple openings and net area are calculated once',
     () {

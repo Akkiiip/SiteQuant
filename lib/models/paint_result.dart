@@ -46,6 +46,8 @@ extension PaintWorkTypeDetails on PaintWorkType {
 
 enum PaintMaterialKind { putty, primer, paint, texture, coating }
 
+enum PuttyCoverageBasis { perCoat, completeTwoCoats }
+
 extension PaintMaterialDetails on PaintMaterialKind {
   String get label => switch (this) {
     PaintMaterialKind.putty => 'Putty',
@@ -63,7 +65,7 @@ extension PaintMaterialDetails on PaintMaterialKind {
   };
 
   String get coverageLabel => switch (this) {
-    PaintMaterialKind.putty => 'Coverage (m² / kg / coat)',
+    PaintMaterialKind.putty => 'Coverage (m² / kg)',
     PaintMaterialKind.primer ||
     PaintMaterialKind.paint ||
     PaintMaterialKind.coating => 'Coverage (m² / L / coat)',
@@ -78,6 +80,8 @@ class PaintMaterialInput {
   final int coats;
   final double coverage;
   final double wastagePercent, rate;
+  final PuttyCoverageBasis puttyCoverageBasis;
+  final double? puttyPackSizeKg;
 
   const PaintMaterialInput({
     required this.kind,
@@ -85,6 +89,8 @@ class PaintMaterialInput {
     required this.coverage,
     required this.wastagePercent,
     required this.rate,
+    this.puttyCoverageBasis = PuttyCoverageBasis.perCoat,
+    this.puttyPackSizeKg,
   });
 }
 
@@ -99,6 +105,10 @@ class PaintMaterialEstimate {
     required this.finalQuantity,
     required this.cost,
   });
+
+  int? get approximatePacks => input.puttyPackSizeKg == null
+      ? null
+      : (finalQuantity / input.puttyPackSizeKg!).ceil();
 }
 
 class PaintResult {

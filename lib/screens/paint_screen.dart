@@ -49,6 +49,9 @@ class _PaintScreenState extends State<PaintScreen> {
   final _helperCoefficient = TextEditingController();
   final _painterWage = TextEditingController();
   final _helperWage = TextEditingController();
+  final _customPuttyPack = TextEditingController(text: '20');
+  PuttyCoverageBasis _puttyCoverageBasis = PuttyCoverageBasis.completeTwoCoats;
+  int? _puttyPackPreset = 20;
   final _materialControllers = {
     for (final kind in PaintMaterialKind.values) kind: _MaterialControllers(),
   };
@@ -82,6 +85,7 @@ class _PaintScreenState extends State<PaintScreen> {
       _helperCoefficient,
       _painterWage,
       _helperWage,
+      _customPuttyPack,
     ]) {
       controller.dispose();
     }
@@ -102,6 +106,11 @@ class _PaintScreenState extends State<PaintScreen> {
       controllers.coverage.text = value.coverage.toString();
       controllers.wastage.text = value.wastagePercent.toString();
       controllers.rate.text = value.rate.toString();
+      if (entry.key == PaintMaterialKind.putty) {
+        _puttyCoverageBasis = value.puttyCoverageBasis;
+        _puttyPackPreset = value.puttyPackSizeKg?.toInt();
+        _customPuttyPack.text = value.puttyPackSizeKg?.toString() ?? '';
+      }
     }
     _painterCoefficient.text = preset.painterDaysPer10M2.toString();
     _helperCoefficient.text = preset.helperDaysPer10M2.toString();
@@ -166,6 +175,13 @@ class _PaintScreenState extends State<PaintScreen> {
           '${kind.label} wastage',
         ),
         rate: _number(_materialControllers[kind]!.rate, '${kind.label} rate'),
+        puttyCoverageBasis: kind == PaintMaterialKind.putty
+            ? _puttyCoverageBasis
+            : PuttyCoverageBasis.perCoat,
+        puttyPackSizeKg: kind == PaintMaterialKind.putty
+            ? (_puttyPackPreset?.toDouble() ??
+                  _number(_customPuttyPack, 'Putty pack size'))
+            : null,
       ),
   ];
 
@@ -282,12 +298,45 @@ class _PaintScreenState extends State<PaintScreen> {
               wholeNumber: true,
             ),
             const SizedBox(height: 12),
+            if (kind == PaintMaterialKind.putty)
+              Text(
+                _customProduct
+                    ? 'Product assumption: choose whether coverage is per coat or for the complete two-coat application.'
+                    : PaintReferenceDefaults.forWorkType(
+                        _workType,
+                      ).materials[PaintMaterialKind.putty]!.note,
+              ),
+            if (kind == PaintMaterialKind.putty) const SizedBox(height: 12),
+
             if (_customProduct)
               DimensionInputField(
                 controller: controllers.coverage,
                 label: '${kind.label} ${kind.coverageLabel}',
                 unit: null,
                 useMeasurementSystem: false,
+              ),
+            if (kind == PaintMaterialKind.putty && _customProduct)
+              DropdownButtonFormField<PuttyCoverageBasis>(
+                initialValue: _puttyCoverageBasis,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Putty coverage basis',
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: PuttyCoverageBasis.completeTwoCoats,
+                    child: Text('Complete two-coat application'),
+                  ),
+                  DropdownMenuItem(
+                    value: PuttyCoverageBasis.perCoat,
+                    child: Text('Per coat'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _puttyCoverageBasis = value);
+                  }
+                },
               ),
             const SizedBox(height: 12),
             if (_customProduct)
@@ -304,6 +353,37 @@ class _PaintScreenState extends State<PaintScreen> {
               unit: '₹ / ${kind.unit}',
               useMeasurementSystem: false,
             ),
+            if (kind == PaintMaterialKind.putty) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Pack size is an editable product/reference assumption. Check the selected product packaging.',
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<int>(
+                key: ValueKey(_puttyPackPreset),
+                initialValue: _puttyPackPreset ?? 0,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Putty pack size'),
+                items: const [
+                  DropdownMenuItem(value: 20, child: Text('20 kg')),
+                  DropdownMenuItem(value: 30, child: Text('30 kg')),
+                  DropdownMenuItem(value: 40, child: Text('40 kg')),
+                  DropdownMenuItem(value: 0, child: Text('Custom')),
+                ],
+                onChanged: (value) => setState(
+                  () => _puttyPackPreset = value == 0 ? null : value,
+                ),
+              ),
+              if (_puttyPackPreset == null) ...[
+                const SizedBox(height: 12),
+                DimensionInputField(
+                  controller: _customPuttyPack,
+                  label: 'Custom putty pack size',
+                  unit: 'kg',
+                  useMeasurementSystem: false,
+                ),
+              ],
+            ],
           ],
         ),
       ),
@@ -414,14 +494,15 @@ class _PaintScreenState extends State<PaintScreen> {
           _card('Material Requirement', Icons.inventory_2_outlined, [
             const Text(
               'Coverage and consumption are editable. Liquid material coverage '
-              'is m²/L/coat; putty is m²/kg/coat; texture uses kg/m²/coat.',
+              'is m²/L/coat; putty coverage basis is product-specific; texture uses kg/m²/coat.',
             ),
             for (final kind in _workType.materials) _materialFields(kind),
           ]),
           _card('Labour & Time', Icons.groups_outlined, [
-            const Text(
-              'No default paint productivity is used. Enter site-specific '
-              'labour days per 10 m²; SiteQuant calculates mandays and duration.',
+            Text(
+              _customProduct
+                  ? 'Enter editable site-specific labour days per 10 m². SiteQuant calculates mandays and duration.'
+                  : PaintReferenceDefaults.forWorkType(_workType).labourNote,
             ),
             if (_customProduct)
               DimensionInputField(
