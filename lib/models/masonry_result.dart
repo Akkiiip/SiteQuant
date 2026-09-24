@@ -50,5 +50,9 @@ class MasonryUnitSize {
   });
 
   String get displayLabel =>
-      '${lengthMm.toStringAsFixed(0)} × ${widthMm.toStringAsFixed(0)} × ${heightMm.toStringAsFixed(0)} mm';
+      '${_display(lengthMm)} × ${_display(widthMm)} × ${_display(heightMm)} mm';
+
+  static String _display(double value) => value == value.truncateToDouble()
+      ? value.toInt().toString()
+      : value.toString();
 }

@@ -34,8 +34,11 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
       masonWage = TextEditingController(),
       helperWage = TextEditingController(),
       masonProductivity = TextEditingController(),
-      helperProductivity = TextEditingController();
-  bool directArea = false;
+      helperProductivity = TextEditingController(),
+      unitLength = TextEditingController(),
+      unitWidth = TextEditingController(),
+      unitHeight = TextEditingController();
+  bool directArea = false, customizeUnitDimensions = false;
   int masons = 1, helpers = 1;
   List<OpeningDeduction> openings = [];
   @override
@@ -51,6 +54,7 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
     helperWage.text = '${p.helperWage}';
     masonProductivity.text = '${p.masonDaysPerM3}';
     helperProductivity.text = '${p.helperDaysPerM3}';
+    _restoreStandardDimensions();
   }
 
   @override
@@ -69,6 +73,9 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
       helperWage,
       masonProductivity,
       helperProductivity,
+      unitLength,
+      unitWidth,
+      unitHeight,
     ]) {
       c.dispose();
     }
@@ -86,6 +93,40 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
 
   void message(String s) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
+
+  String _dimensionValue(double value) =>
+      value == value.truncateToDouble() ? value.toInt().toString() : '$value';
+
+  void _restoreStandardDimensions() {
+    unitLength.text = _dimensionValue(p.unitSize.lengthMm);
+    unitWidth.text = _dimensionValue(p.unitSize.widthMm);
+    unitHeight.text = _dimensionValue(p.unitSize.heightMm);
+  }
+
+  void _useStandardDimensions() {
+    setState(() {
+      _restoreStandardDimensions();
+      customizeUnitDimensions = false;
+    });
+  }
+
+  MasonryUnitSize? _selectedUnitSize() {
+    if (!customizeUnitDimensions) return p.unitSize;
+    final selectedLength = value(unitLength, 'unit length');
+    final selectedWidth = value(unitWidth, 'unit width');
+    final selectedHeight = value(unitHeight, 'unit height');
+    if (selectedLength == null ||
+        selectedWidth == null ||
+        selectedHeight == null) {
+      return null;
+    }
+    return MasonryUnitSize(
+      lengthMm: selectedLength,
+      widthMm: selectedWidth,
+      heightMm: selectedHeight,
+    );
+  }
+
   void calculate() {
     final q = int.tryParse(quantity.text);
     final t = value(thickness, 'wall thickness');
@@ -94,13 +135,15 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
       message('Quantity must be at least 1.');
       return;
     }
+    final selectedUnitSize = _selectedUnitSize();
+    if (selectedUnitSize == null) return;
     try {
       final r = MasonryV2Calculator.calculate(
         MasonryInput(
           type: widget.type,
           grossArea: gross,
           thicknessMm: t,
-          unitSize: p.unitSize,
+          unitSize: selectedUnitSize,
           openings: openings,
           cementPart: 1,
           sandPart: 6,
@@ -163,6 +206,43 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
         ),
         const SizedBox(height: 12),
         const MetricImperialToggle(),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Masonry Unit',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text('Standard dimensions: ${p.unitSize.displayLabel}'),
+                const SizedBox(height: 8),
+                if (!customizeUnitDimensions)
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        setState(() => customizeUnitDimensions = true),
+                    icon: const Icon(Icons.tune_rounded),
+                    label: const Text('Customize dimensions'),
+                  )
+                else ...[
+                  field(unitLength, 'Unit length', 'mm'),
+                  field(unitWidth, 'Unit width', 'mm'),
+                  field(unitHeight, 'Unit height', 'mm'),
+                  TextButton.icon(
+                    onPressed: _useStandardDimensions,
+                    icon: const Icon(Icons.restart_alt_rounded),
+                    label: const Text('Use Standard Dimensions'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
         Card(
           child: Padding(

@@ -20,7 +20,7 @@ void main() {
       expect(find.byKey(const Key('Wall area')), findsOneWidget);
 
       final scroll = find.byType(Scrollable).first;
-      await tester.drag(scroll, const Offset(0, -260));
+      await tester.drag(scroll, const Offset(0, -520));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add opening'));
       await tester.pumpAndSettle();
@@ -48,7 +48,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Opening 1'), findsNothing);
 
-      await tester.drag(scroll, const Offset(0, -260));
+      await tester.drag(scroll, const Offset(0, -520));
       await tester.pumpAndSettle();
       expect(find.text('Advanced Options'), findsOneWidget);
       await tester.tap(find.text('Advanced Options'));
