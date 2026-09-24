@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../services/analytics_service.dart';
+import '../services/quiz_reminder_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/sitequant_calculator_icon.dart';
 import '../widgets/home_adaptive_banner_slot.dart';
 import 'concrete_screen.dart';
+import 'construction_practice_screen.dart';
 import 'excavation_screen.dart';
 import 'masonry_v2_screen.dart';
 import 'paint_screen.dart';
@@ -25,11 +27,39 @@ class SiteQuantShell extends StatefulWidget {
 
 class _SiteQuantShellState extends State<SiteQuantShell> {
   var _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    QuizReminderService.navigationRequest.addListener(_openLearnFromReminder);
+    if (QuizReminderService.navigationRequest.value > 0) _index = 3;
+  }
+
+  @override
+  void dispose() {
+    QuizReminderService.navigationRequest.removeListener(
+      _openLearnFromReminder,
+    );
+    super.dispose();
+  }
+
+  void _openLearnFromReminder() {
+    if (!mounted) return;
+    setState(() => _index = 3);
+    AnalyticsService.logQuizNotificationOpened();
+    AnalyticsService.logQuizOpened();
+  }
+
+  void _selectDestination(int value) {
+    setState(() => _index = value);
+    if (value == 3) AnalyticsService.logQuizOpened();
+  }
+
   List<Widget> get _pages => [
     _DashboardPage(onSeeAll: () => setState(() => _index = 1)),
     _CalculatorBrowser(),
     _ToolsPage(),
-    _LearnPage(),
+    const ConstructionPracticeScreen(),
     _ProfilePage(),
   ];
 
@@ -40,7 +70,7 @@ class _SiteQuantShellState extends State<SiteQuantShell> {
     ),
     bottomNavigationBar: NavigationBar(
       selectedIndex: _index,
-      onDestinationSelected: (value) => setState(() => _index = value),
+      onDestinationSelected: _selectDestination,
       indicatorColor: AppTheme.primaryBlue.withValues(alpha: .14),
       destinations: const [
         NavigationDestination(
@@ -451,112 +481,6 @@ Widget _tool(
   ),
 );
 
-class _LearnPage extends StatelessWidget {
-  const _LearnPage();
-  @override
-  Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(20),
-    children: [
-      Text(
-        'Learn',
-        style: Theme.of(
-          context,
-        ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-      ),
-      const SizedBox(height: 14),
-      Card(
-        color: AppTheme.navy,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Civil Engineering Quiz',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Test your knowledge\nLearn · Practice · Improve',
-                style: TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const QuizScreen()),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppTheme.primaryBlue,
-                ),
-                child: const Text('Start Quiz'),
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(height: 22),
-      Text('Topics', style: Theme.of(context).textTheme.titleMedium),
-      const SizedBox(height: 12),
-      GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 1.55,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        children: _topics
-            .map(
-              (t) => Card(
-                child: InkWell(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const QuizScreen()),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(t.$2, color: t.$3),
-                        const Spacer(),
-                        Text(
-                          t.$1,
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        const Text(
-                          '10 Questions',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.mutedInk,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    ],
-  );
-}
-
-final _topics = [
-  ('RCC & Concrete', Icons.foundation_rounded, AppTheme.primaryBlue),
-  ('Surveying', Icons.square_foot_rounded, const Color(0xFFF29A28)),
-  ('Estimation & QS', Icons.calculate_outlined, const Color(0xFF7655C8)),
-  ('Building Materials', Icons.inventory_2_outlined, const Color(0xFF169B65)),
-  ('Soil Mechanics', Icons.terrain_outlined, const Color(0xFFAC6A2E)),
-  ('Transportation', Icons.local_shipping_outlined, const Color(0xFF3284C3)),
-  ('Environmental', Icons.eco_outlined, const Color(0xFF2C9A5A)),
-  ('Construction Practice', Icons.engineering_outlined, AppTheme.navy),
-];
-
 class _ProfilePage extends StatelessWidget {
   const _ProfilePage();
   @override
@@ -619,220 +543,6 @@ class _ProfilePage extends StatelessWidget {
         ),
       ),
     ],
-  );
-}
-
-class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
-  @override
-  State<QuizScreen> createState() => _QuizScreenState();
-}
-
-class _QuizScreenState extends State<QuizScreen> {
-  var _index = 0;
-  int? _answer;
-  var _score = 0;
-  final _questions = const [
-    (
-      'The commonly used grade for residential RCC slabs in India is?',
-      ['M10', 'M15', 'M20', 'M30'],
-      2,
-      'M20 is commonly used for residential reinforced concrete work.',
-    ),
-    (
-      'Which test measures concrete workability?',
-      ['Slump test', 'Sieve test', 'CBR test', 'Soundness test'],
-      0,
-      'The slump test is the standard on-site workability test.',
-    ),
-    (
-      'Cement is normally measured in?',
-      ['Litres', 'Bags', 'Metres', 'Kilograms only'],
-      1,
-      'Cement is typically ordered and estimated in bags.',
-    ),
-    (
-      'A beam primarily resists?',
-      ['Bending', 'Only compression', 'Only tension', 'Temperature'],
-      0,
-      'Beams transfer loads by resisting bending and shear.',
-    ),
-    (
-      'Water-cement ratio affects?',
-      [
-        'Workability and strength',
-        'Only colour',
-        'Only aggregate size',
-        'Only setting time',
-      ],
-      0,
-      'It has a direct effect on strength and workability.',
-    ),
-    (
-      'Which is a fine aggregate?',
-      ['Sand', 'Gravel', 'Rebar', 'Cement'],
-      0,
-      'Sand is fine aggregate in concrete and mortar.',
-    ),
-    (
-      'RCC stands for?',
-      [
-        'Reinforced Cement Concrete',
-        'Rapid Concrete Course',
-        'Ready Cement Compound',
-        'Reinforced Clay Concrete',
-      ],
-      0,
-      'RCC uses steel reinforcement with cement concrete.',
-    ),
-    (
-      'A footing transfers load to?',
-      ['Soil', 'Roof', 'Brickwork only', 'Plaster'],
-      0,
-      'Footings spread structural loads safely into soil.',
-    ),
-    (
-      'Concrete curing helps improve?',
-      ['Strength and durability', 'Colour only', 'Steel weight', 'Brick size'],
-      0,
-      'Curing supports hydration, strength and durability.',
-    ),
-    (
-      'Which unit is used for concrete volume?',
-      ['m³', 'm²', 'kg/m', 'litres per second'],
-      0,
-      'Concrete quantity is measured by volume in cubic metres.',
-    ),
-  ];
-  @override
-  Widget build(BuildContext context) {
-    if (_index == _questions.length) return _results(context);
-    final q = _questions[_index];
-    return Scaffold(
-      appBar: AppBar(title: const Text('RCC & Concrete')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LinearProgressIndicator(value: _index / _questions.length),
-            const SizedBox(height: 14),
-            Text(
-              'Question ${_index + 1} of 10',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 24),
-            Text(q.$1, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 20),
-            ...q.$2.asMap().entries.map(
-              (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: OutlinedButton(
-                  onPressed: _answer == null
-                      ? () => setState(() {
-                          _answer = e.key;
-                          if (e.key == q.$3) _score++;
-                        })
-                      : null,
-                  style: OutlinedButton.styleFrom(
-                    alignment: Alignment.centerLeft,
-                    minimumSize: const Size.fromHeight(52),
-                    side: BorderSide(
-                      color: _answer == e.key
-                          ? (e.key == q.$3 ? Colors.green : Colors.red)
-                          : AppTheme.border,
-                    ),
-                  ),
-                  child: Text('${String.fromCharCode(65 + e.key)}  ${e.value}'),
-                ),
-              ),
-            ),
-            if (_answer != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: (_answer == q.$3 ? Colors.green : Colors.red)
-                      .withValues(alpha: .10),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  _answer == q.$3
-                      ? 'Correct! ${q.$4}'
-                      : 'Correct answer: ${q.$2[q.$3]}. ${q.$4}',
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => setState(() {
-                    _index++;
-                    _answer = null;
-                  }),
-                  child: Text(_index == 9 ? 'See Results' : 'Next'),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _results(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Quiz Results')),
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.emoji_events_rounded,
-                  size: 64,
-                  color: Color(0xFFF4AE00),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Great Job!',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$_score / 10',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.navy,
-                  ),
-                ),
-                Text(
-                  '${_score * 10}%',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => setState(() {
-                      _index = 0;
-                      _score = 0;
-                      _answer = null;
-                    }),
-                    child: const Text('Try Again'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
   );
 }
 

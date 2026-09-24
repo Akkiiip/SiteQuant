@@ -63,6 +63,15 @@ class AnalyticsService {
   static void logOpeningAdded(String calculator) =>
       _send('opening_added', {'calculator': calculator});
 
+  static void logQuizOpened() => _send('quiz_opened', {});
+  static void logQuizStarted() => _send('quiz_started', {});
+  static void logQuizCompleted({required int score, required int percentage}) =>
+      _send('quiz_completed', {'score': score, 'percentage': percentage});
+  static void logQuizReminderEnabled() => _send('quiz_reminder_enabled', {});
+  static void logQuizReminderDisabled() => _send('quiz_reminder_disabled', {});
+  static void logQuizNotificationOpened() =>
+      _send('quiz_notification_opened', {});
+
   static void logInterstitialLoadAttempted() =>
       _send('interstitial_load_attempted', {});
   static void logInterstitialLoaded() => _send('interstitial_loaded', {});

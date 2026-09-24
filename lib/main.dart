@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'services/interstitial_ad_service.dart';
 import 'services/analytics_service.dart';
+import 'services/quiz_reminder_service.dart';
 import 'firebase_options.dart';
 import 'services/ad_consent_manager.dart';
 
@@ -19,6 +20,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  await QuizReminderService.instance.initialize();
 
   AnalyticsService.calculationCompletedHandler =
       InterstitialAdService.instance.onCalculationCompleted;
