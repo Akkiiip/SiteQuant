@@ -7,7 +7,11 @@ import 'analytics_service.dart';
 
 class InterstitialAdService {
   InterstitialAdService._({InterstitialLoader? loader})
-    : _loader = loader ?? _GoogleInterstitialLoader();
+    : _loader =
+          loader ??
+          _GoogleInterstitialLoader(AdMobConfig.androidInterstitialAdUnitId) {
+    AdConsentManager.canRequestAds.addListener(_onConsentChanged);
+  }
   static final instance = InterstitialAdService._();
   static const int completedCalculationsPerInterstitial = 3;
   final InterstitialLoader _loader;
@@ -21,13 +25,36 @@ class InterstitialAdService {
   @visibleForTesting
   int get completedCalculations => _completedCalculations;
 
+  void _onConsentChanged() {
+    if (AdConsentManager.canRequestAds.value) {
+      unawaited(preload());
+      return;
+    }
+    final ad = _ad;
+    _ad = null;
+    ad?.dispose();
+  }
+
+  @visibleForTesting
+  void dispose() {
+    AdConsentManager.canRequestAds.removeListener(_onConsentChanged);
+    final ad = _ad;
+    _ad = null;
+    ad?.dispose();
+  }
+
   Future<void> preload() async {
     if (_loading || _ad != null || !AdConsentManager.canRequestAds.value)
       return;
     _loading = true;
     AnalyticsService.logInterstitialLoadAttempted();
     try {
-      _ad = await _loader.load();
+      final loaded = await _loader.load();
+      if (!AdConsentManager.canRequestAds.value) {
+        loaded.dispose();
+        return;
+      }
+      _ad = loaded;
       AnalyticsService.logInterstitialLoaded();
     } catch (_) {
       AnalyticsService.logInterstitialLoadFailed();
@@ -49,6 +76,12 @@ class InterstitialAdService {
   }
 
   Future<void> showIfReady() async {
+    if (!AdConsentManager.canRequestAds.value) {
+      final ad = _ad;
+      _ad = null;
+      ad?.dispose();
+      return;
+    }
     if (_showing || _ad == null) {
       unawaited(preload());
       return;
@@ -98,11 +131,21 @@ abstract interface class InterstitialHandle {
 }
 
 class _GoogleInterstitialLoader implements InterstitialLoader {
+  const _GoogleInterstitialLoader(this.adUnitId);
+
+  final String? adUnitId;
+
   @override
   Future<InterstitialHandle> load() {
+    final id = adUnitId;
+    if (id == null) {
+      return Future.error(
+        StateError('Production interstitial ad unit ID is not configured.'),
+      );
+    }
     final result = Completer<InterstitialHandle>();
     InterstitialAd.load(
-      adUnitId: AdMobConfig.androidTestInterstitialAdUnitId,
+      adUnitId: id,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) => result.complete(_GoogleInterstitial(ad)),

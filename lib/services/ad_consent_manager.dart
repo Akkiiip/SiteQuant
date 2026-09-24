@@ -36,18 +36,7 @@ class AdConsentManager {
   }
 
   static Future<void> _finishConsentFlow(Completer<void> completer) async {
-    privacyOptionsRequired.value =
-        await ConsentInformation.instance
-            .getPrivacyOptionsRequirementStatus() ==
-        PrivacyOptionsRequirementStatus.required;
-
-    if (await ConsentInformation.instance.canRequestAds()) {
-      canRequestAds.value = true;
-      if (!_mobileAdsInitialized) {
-        _mobileAdsInitialized = true;
-        await MobileAds.instance.initialize();
-      }
-    }
+    await _refreshConsentState();
 
     if (!completer.isCompleted) {
       completer.complete();
@@ -65,10 +54,20 @@ class AdConsentManager {
   static Future<void> _refreshPrivacyOptionsStatus(
     Completer<void> completer,
   ) async {
+    await _refreshConsentState();
+    if (!completer.isCompleted) completer.complete();
+  }
+
+  static Future<void> _refreshConsentState() async {
     privacyOptionsRequired.value =
         await ConsentInformation.instance
             .getPrivacyOptionsRequirementStatus() ==
         PrivacyOptionsRequirementStatus.required;
-    completer.complete();
+    final allowed = await ConsentInformation.instance.canRequestAds();
+    canRequestAds.value = allowed;
+    if (allowed && !_mobileAdsInitialized) {
+      _mobileAdsInitialized = true;
+      await MobileAds.instance.initialize();
+    }
   }
 }

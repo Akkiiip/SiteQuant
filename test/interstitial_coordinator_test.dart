@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:site_quant/services/ad_consent_manager.dart';
+import 'package:site_quant/services/admob_config.dart';
 import 'package:site_quant/services/analytics_service.dart';
 import 'package:site_quant/services/interstitial_ad_service.dart';
 
@@ -69,6 +70,60 @@ void main() {
     AdConsentManager.canRequestAds.value = false;
   });
 
+  test('interstitial configuration separates debug and release IDs', () {
+    expect(
+      AdMobConfig.interstitialAdUnitIdFor(
+        releaseMode: false,
+        releaseAdUnitId: '',
+      ),
+      AdMobConfig.androidTestInterstitialAdUnitId,
+    );
+    expect(
+      AdMobConfig.interstitialAdUnitIdFor(
+        releaseMode: true,
+        releaseAdUnitId: 'configured-by-release-pipeline',
+      ),
+      'configured-by-release-pipeline',
+    );
+    expect(
+      AdMobConfig.interstitialAdUnitIdFor(
+        releaseMode: true,
+        releaseAdUnitId: '   ',
+      ),
+      isNull,
+    );
+  });
+
+  test('consent revocation disposes a cached interstitial', () async {
+    final loader = _FakeLoader();
+    final coordinator = InterstitialAdService.forTesting(loader);
+    addTearDown(coordinator.dispose);
+    await coordinator.preload();
+    final handle = loader.handles.single;
+
+    AdConsentManager.canRequestAds.value = false;
+
+    expect(handle.disposals, 1);
+    await coordinator.showIfReady();
+    expect(handle.shows, 0);
+    coordinator.dispose();
+  });
+
+  test('show does not display an ad when consent is disallowed', () async {
+    final loader = _FakeLoader();
+    final coordinator = InterstitialAdService.forTesting(loader);
+    addTearDown(coordinator.dispose);
+    await coordinator.preload();
+    final handle = loader.handles.single;
+
+    AdConsentManager.canRequestAds.value = false;
+    await coordinator.showIfReady();
+
+    expect(handle.shows, 0);
+    expect(handle.disposals, 1);
+    coordinator.dispose();
+  });
+
   testWidgets(
     'only every third completion is eligible, with one show and normal dismissal',
     (tester) async {
@@ -76,6 +131,7 @@ void main() {
       AnalyticsService.setLoggerForTesting(logger);
       final loader = _FakeLoader();
       final coordinator = InterstitialAdService.forTesting(loader);
+      addTearDown(coordinator.dispose);
       AnalyticsService.calculationCompletedHandler =
           coordinator.onCalculationCompleted;
       await tester.pumpWidget(
@@ -139,6 +195,7 @@ void main() {
       AnalyticsService.setLoggerForTesting(logger);
       final loader = _UnavailableLoader();
       final coordinator = InterstitialAdService.forTesting(loader);
+      addTearDown(coordinator.dispose);
       AnalyticsService.calculationCompletedHandler =
           coordinator.onCalculationCompleted;
       await tester.pumpWidget(
