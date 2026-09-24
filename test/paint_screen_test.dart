@@ -29,7 +29,7 @@ Future<void> choosePaintOnly(WidgetTester tester) async {
     (widget) => widget is DropdownButtonFormField<PaintWorkType>,
   );
   await tapVisible(tester, dropdown);
-  await tester.tap(find.text('Paint Only').last);
+  await tester.tap(find.text('Interior Emulsion Only').last);
   await tester.pumpAndSettle();
 }
 
@@ -47,10 +47,7 @@ void main() {
         MaterialApp(theme: AppTheme.lightTheme, home: const PaintScreen()),
       );
       await choosePaintOnly(tester);
-      expect(
-        find.textContaining('CPWD DAR reference for wall acrylic emulsion'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('CPWD DAR item 13.82.2'), findsOneWidget);
       await enter(tester, 'Surface length', '10');
       await enter(tester, 'Surface height / width', '10');
       expect(field('Paint Coverage'), findsNothing);
@@ -126,10 +123,7 @@ void main() {
     await tapVisible(tester, dropdown);
     await tester.tap(find.text('Putty Only').last);
     await tester.pumpAndSettle();
-    expect(
-      find.textContaining('complete two-coat wall-putty range'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('SiteQuant Reference Average'), findsOneWidget);
     expect(find.text('Putty pack size'), findsOneWidget);
     await enter(tester, 'Surface length', '10');
     await enter(tester, 'Surface height / width', '10');

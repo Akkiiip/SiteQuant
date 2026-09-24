@@ -7,16 +7,22 @@ class PaintReferenceMaterial {
     required this.wastagePercent,
     required this.rate,
     required this.coverageBasis,
+    required this.coverageCoats,
+    required this.coverageDescription,
+    required this.referenceLabel,
     required this.note,
-    this.puttyCoverageBasis = PuttyCoverageBasis.perCoat,
     this.puttyPackSizeKg,
   });
-
-  final int coats;
+  final int coats, coverageCoats;
   final double coverage, wastagePercent, rate;
-  final String coverageBasis, note;
-  final PuttyCoverageBasis puttyCoverageBasis;
+  final PaintCoverageBasis coverageBasis;
+  final String coverageDescription, referenceLabel, note;
   final double? puttyPackSizeKg;
+  PuttyCoverageBasis get puttyCoverageBasis =>
+      coverageBasis == PaintCoverageBasis.completeOperation &&
+          coverageCoats == 2
+      ? PuttyCoverageBasis.completeTwoCoats
+      : PuttyCoverageBasis.perCoat;
 }
 
 class PaintReferencePreset {
@@ -27,97 +33,104 @@ class PaintReferencePreset {
     required this.helperDaysPer10M2,
     required this.painterDailyWage,
     required this.helperDailyWage,
+    required this.productivityName,
     required this.labourNote,
   });
-
   final PaintWorkType workType;
   final Map<PaintMaterialKind, PaintReferenceMaterial> materials;
   final double painterDaysPer10M2, helperDaysPer10M2;
   final double painterDailyWage, helperDailyWage;
-  final String labourNote;
+  final String productivityName, labourNote;
 }
 
 class PaintReferenceDefaults {
   PaintReferenceDefaults._();
 
-  // Product sheet: 10–15 sq ft/kg for the complete two-coat application.
-  // 1.16 m²/kg is about 12.49 sq ft/kg, within that product range.
-  // https://www.asianpaints.com/content/dam/asianpaints/website/products/pis-files/professional-wall-putty.pdf
   static const _putty = PaintReferenceMaterial(
     coats: 2,
-    coverage: 1.16,
+    coverage: 2.02064,
     wastagePercent: 5,
     rate: 35,
-    coverageBasis: '1.16 m²/kg for the complete two-coat application',
-    puttyCoverageBasis: PuttyCoverageBasis.completeTwoCoats,
+    coverageBasis: PaintCoverageBasis.perCoat,
+    coverageCoats: 1,
+    coverageDescription: '2.02 m²/kg/coat (21.75 sq ft/kg/coat)',
+    referenceLabel: 'SiteQuant Reference Average',
     puttyPackSizeKg: 20,
     note:
-        'Editable product reference assumption from a 10–15 sq ft/kg complete two-coat wall-putty range. '
-        'Pack sizes are editable assumptions; verify the selected product and available packaging.',
+        'SiteQuant Reference Average: midpoint average of comparable cement-based per-coat references—Asian Paints Wall Putty 20–25 and JK WallMaxX 20–22 sq ft/kg. Five percent wastage and ₹35/kg are editable site/market references. Roughness and thickness can materially change consumption.',
   );
-  static const _primer = PaintReferenceMaterial(
+  static const _interiorPrimer = PaintReferenceMaterial(
     coats: 1,
-    coverage: 10,
+    coverage: 15.75,
     wastagePercent: 5,
-    rate: 120,
-    coverageBasis: '10 m2/L/coat',
-    note: 'Reference estimate; verify the selected primer data sheet.',
-  );
-  static const _paint = PaintReferenceMaterial(
-    coats: 2,
-    coverage: 26,
-    wastagePercent: 5,
-    rate: 300,
-    coverageBasis: '26 m2/L/coat',
+    rate: 150,
+    coverageBasis: PaintCoverageBasis.perCoat,
+    coverageCoats: 1,
+    coverageDescription: '15.75 m²/L for one coat',
+    referenceLabel: 'SiteQuant Reference Average',
     note:
-        'Reference based on an approximately 260-300 sq ft/L/coat emulsion range on normal masonry.',
+        'SiteQuant Reference Average normalized to one coat from Asian Paints water-thinnable primer (170–200 sq ft/L) and CPWD DAR interior primer consumption (0.70 L/10 m²). ₹150/L and 5% wastage are editable market/site references.',
+  );
+  static const _interiorEmulsion = PaintReferenceMaterial(
+    coats: 2,
+    coverage: 13.94,
+    wastagePercent: 5,
+    rate: 420,
+    coverageBasis: PaintCoverageBasis.completeOperation,
+    coverageCoats: 2,
+    coverageDescription: '13.94 m²/L for the complete two-coat operation',
+    referenceLabel: 'SiteQuant Reference Average',
+    note:
+        'SiteQuant Reference Average of comparable two-coat interior emulsions: Asian Paints Apcolite Premium 130–150 and Berger premium interior reference 150–170 sq ft/L for two coats. ₹420/L and 5% wastage are editable market/site references.',
+  );
+  static const _exteriorPrimer = PaintReferenceMaterial(
+    coats: 1,
+    coverage: 12.08,
+    wastagePercent: 7,
+    rate: 190,
+    coverageBasis: PaintCoverageBasis.perCoat,
+    coverageCoats: 1,
+    coverageDescription: '12.08 m²/L (130 sq ft/L) for one coat',
+    referenceLabel: 'SiteQuant Reference Average',
+    note:
+        'SiteQuant Reference Average for mainstream exterior masonry primers, normalized to one coat; aligned with Dulux Weathershield 110–150 sq ft/L. ₹190/L and 7% wastage are editable market/site references.',
+  );
+  static const _exteriorEmulsion = PaintReferenceMaterial(
+    coats: 2,
+    coverage: 6.35,
+    wastagePercent: 7,
+    rate: 340,
+    coverageBasis: PaintCoverageBasis.completeOperation,
+    coverageCoats: 2,
+    coverageDescription:
+        '6.35 m²/L (68.3 sq ft/L) for the complete two-coat operation',
+    referenceLabel: 'SiteQuant Reference Average',
+    note:
+        'SiteQuant Reference Average of comparable exterior emulsions normalized to two coats: Asian Paints Apex 70–80, Ace 55–65, and Nerolac Excel 130–150 sq ft/L/coat. ₹340/L and 7% wastage are editable market/site references. Scaffolding/access cost excluded.',
   );
   static const _coating = PaintReferenceMaterial(
     coats: 2,
     coverage: 10,
     wastagePercent: 5,
     rate: 350,
-    coverageBasis: '10 m2/L/coat',
+    coverageBasis: PaintCoverageBasis.perCoat,
+    coverageCoats: 1,
+    coverageDescription: '10 m²/L/coat',
+    referenceLabel: 'Site Reference Assumption',
     note:
-        'Reference assumption; wood and metal coverage depends on product and surface preparation.',
+        'Site Reference Assumption for ordinary wood/metal coating. Product, preparation, substrate and shade vary; edit from the selected product sheet.',
   );
   static const _texture = PaintReferenceMaterial(
     coats: 1,
     coverage: 1,
     wastagePercent: 7,
     rate: 150,
-    coverageBasis: '1 kg/m2/coat',
+    coverageBasis: PaintCoverageBasis.perCoat,
+    coverageCoats: 1,
+    coverageDescription: '1 kg/m²/coat consumption',
+    referenceLabel: 'Site Reference Assumption',
     note:
-        'Reference assumption only. Texture consumption is product-specific and should be verified.',
-  );
-
-  // These figures apply to the cited individual wall items only. Composite
-  // systems and different substrates retain editable site assumptions.
-  // CPWD DAR 2013 Vol II, items 13.82.2 and 13.43.1:
-  // https://www.cpwd.gov.in/Publication/DARVol2-2013.pdf
-  static const _acrylicWallTwoCoats = (
-    painter: .54,
-    helper: .54,
-    note:
-        'CPWD DAR reference for wall acrylic emulsion, two coats (item 13.82.2). '
-        'Editable reference only; adjust for product, preparation and access.',
-  );
-  static const _waterThinnableWallPrimer = (
-    painter: .40,
-    helper: .20,
-    note:
-        'CPWD DAR reference for one coat of water-thinnable cement primer on wall '
-        '(item 13.43.1). Editable reference only; adjust for other primers and surfaces.',
-  );
-
-  static ({double painter, double helper, String note}) _siteAssumption(
-    String work,
-  ) => (
-    painter: 1.0,
-    helper: .5,
-    note:
-        'Editable Site Reference Assumption for $work, not a CPWD/DAR item. '
-        'Confirm labour days per 10 m² for the finish, substrate, access and crew.',
+        'Site Reference Assumption for texture consumption and rate; texture profile and product can vary widely.',
   );
 
   static PaintReferencePreset forWorkType(PaintWorkType workType) {
@@ -125,36 +138,84 @@ class PaintReferenceDefaults {
       for (final material in workType.materials)
         material: switch (material) {
           PaintMaterialKind.putty => _putty,
-          PaintMaterialKind.primer => _primer,
-          PaintMaterialKind.paint => _paint,
+          PaintMaterialKind.primer =>
+            workType == PaintWorkType.exteriorWalls
+                ? _exteriorPrimer
+                : _interiorPrimer,
+          PaintMaterialKind.paint =>
+            workType == PaintWorkType.exteriorWalls
+                ? _exteriorEmulsion
+                : _interiorEmulsion,
           PaintMaterialKind.texture => _texture,
           PaintMaterialKind.coating => _coating,
         },
     };
     final labour = switch (workType) {
-      PaintWorkType.interiorWalls => _siteAssumption(
-        'combined putty, primer and interior wall paint',
+      PaintWorkType.puttyOnly => (
+        p: .45,
+        h: .45,
+        name: 'CPWD DAR 2023 item 13.80',
+        note:
+            'CPWD DAR 2023 item 13.80: 1 mm white-cement-based wall putty—0.45 mason and 0.45 beldar day per 10 m². Used as painter/helper roles in SiteQuant. Editable for substrate and finish.',
       ),
-      PaintWorkType.ceiling => _siteAssumption(
-        'ceiling putty, primer and paint',
+      PaintWorkType.primerOnly => (
+        p: .40,
+        h: .20,
+        name: 'CPWD DAR wall-primer reference',
+        note:
+            'CPWD DAR item 13.43.1: one coat water-thinnable cement primer—0.40 painter and 0.20 coolie day per 10 m². Editable for product and preparation.',
       ),
-      PaintWorkType.exteriorWalls => _siteAssumption(
-        'exterior primer and paint',
+      PaintWorkType.paintOnly => (
+        p: .54,
+        h: .54,
+        name: 'CPWD DAR acrylic-emulsion reference',
+        note:
+            'CPWD DAR item 13.82.2: two-coat wall acrylic emulsion—0.54 painter and 0.54 coolie day per 10 m². Editable for substrate and application method.',
       ),
-      PaintWorkType.texture => _siteAssumption('texture or special finish'),
-      PaintWorkType.wood => _siteAssumption('wood coating'),
-      PaintWorkType.metal => _siteAssumption('metal coating'),
-      PaintWorkType.puttyOnly => _siteAssumption('putty only'),
-      PaintWorkType.primerOnly => _waterThinnableWallPrimer,
-      PaintWorkType.paintOnly => _acrylicWallTwoCoats,
+      PaintWorkType.interiorWalls => (
+        p: 1.39,
+        h: 1.19,
+        name: 'Summed operation references',
+        note:
+            'Transparent sum per 10 m²: putty 0.45/0.45 + primer 0.40/0.20 + two-coat interior emulsion 0.54/0.54 painter/helper days. Editable; no crew multiplication.',
+      ),
+      PaintWorkType.ceiling => (
+        p: 1.60,
+        h: 1.37,
+        name: 'Site Reference Assumption',
+        note:
+            'Site Reference Assumption: interior system sum with a 15% overhead-position productivity allowance. Not an official CPWD rate; edit for height and access.',
+      ),
+      PaintWorkType.exteriorWalls => (
+        p: .60,
+        h: .30,
+        name: 'CPWD DAR exterior-system reference',
+        note:
+            'CPWD DAR item 13.46.1 reference for exterior primer plus two-or-more coats of acrylic smooth exterior paint. Scaffolding/access cost excluded and must be priced separately when required.',
+      ),
+      PaintWorkType.texture => (
+        p: .60,
+        h: .30,
+        name: 'CPWD DAR textured-exterior reference',
+        note:
+            'CPWD DAR item 13.45.1 reference for exterior primer plus textured finish. Edit for texture profile and method. Scaffolding/access cost excluded.',
+      ),
+      PaintWorkType.wood || PaintWorkType.metal => (
+        p: .54,
+        h: .54,
+        name: 'CPWD DAR coating reference',
+        note:
+            'CPWD DAR two-or-more-coat painting reference for ordinary wood/metal work. Edit for preparation, geometry and coating system.',
+      ),
     };
     return PaintReferencePreset(
       workType: workType,
       materials: materials,
-      painterDaysPer10M2: labour.painter,
-      helperDaysPer10M2: labour.helper,
+      painterDaysPer10M2: labour.p,
+      helperDaysPer10M2: labour.h,
       painterDailyWage: 900,
-      helperDailyWage: 600,
+      helperDailyWage: 750,
+      productivityName: labour.name,
       labourNote: labour.note,
     );
   }

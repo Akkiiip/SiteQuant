@@ -79,6 +79,8 @@ PaintResult referenceEstimate(
           coverage: entry.value.coverage,
           wastagePercent: entry.value.wastagePercent,
           rate: entry.value.rate,
+          coverageBasis: entry.value.coverageBasis,
+          coverageCoats: entry.value.coverageCoats,
           puttyCoverageBasis: entry.value.puttyCoverageBasis,
           puttyPackSizeKg: entry.value.puttyPackSizeKg,
         ),
@@ -105,8 +107,8 @@ void main() {
     final reference = PaintReferenceDefaults.forWorkType(
       PaintWorkType.puttyOnly,
     ).materials[PaintMaterialKind.putty]!;
-    expect(reference.puttyCoverageBasis, PuttyCoverageBasis.completeTwoCoats);
-    expect(reference.coverageBasis, contains('complete two-coat'));
+    expect(reference.coverageBasis, PaintCoverageBasis.perCoat);
+    expect(reference.coverageDescription, contains('kg/coat'));
     final area = MeasurementPreferences.toSquareMetres(
       6000,
       MeasurementSystem.imperial,
@@ -127,10 +129,10 @@ void main() {
       ],
     );
     final putty = result.materials.single;
-    expect(putty.baseQuantity, closeTo(area / 1.16, 1e-8));
-    expect(putty.finalQuantity, closeTo(area / 1.16 * 1.05, 1e-8));
-    expect(putty.finalQuantity, closeTo(504.5596, 1e-3));
-    expect(putty.approximatePacks, 26);
+    final expectedBase = area * reference.coats / reference.coverage;
+    expect(putty.baseQuantity, closeTo(expectedBase, 1e-8));
+    expect(putty.finalQuantity, closeTo(expectedBase * 1.05, 1e-8));
+    expect(putty.approximatePacks, 29);
   });
 
   test('putty 20, 30 and 40 kg packs round up without changing kg', () {
@@ -210,10 +212,8 @@ void main() {
       final preset = PaintReferenceDefaults.forWorkType(type);
       expect(preset.painterDaysPer10M2, greaterThan(0));
       expect(preset.helperDaysPer10M2, greaterThan(0));
-      expect(preset.labourNote, contains('Editable'));
-      if (type != PaintWorkType.paintOnly && type != PaintWorkType.primerOnly) {
-        expect(preset.labourNote, contains('Site Reference Assumption'));
-      }
+      expect(preset.labourNote, isNotEmpty);
+      expect(preset.productivityName, isNotEmpty);
     }
   });
   test(
@@ -351,7 +351,7 @@ void main() {
     expect(() => estimate(painterCoefficient: 0), throwsArgumentError);
     expect(() => estimate(helperCoefficient: -1), throwsArgumentError);
     expect(() => estimate(painters: 0), throwsArgumentError);
-    expect(() => estimate(helpers: 4), throwsArgumentError);
+    expect(() => estimate(helpers: 6), throwsArgumentError);
     expect(
       () => estimate(
         materials: [

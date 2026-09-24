@@ -10,7 +10,6 @@ import 'productivity_calculator.dart';
 
 class PaintCalculator {
   PaintCalculator._();
-
   static PaintResult calculate({
     required PaintWorkType workType,
     required double grossArea,
@@ -20,6 +19,9 @@ class PaintCalculator {
     required Map<LabourRole, double> dailyWages,
     required double painterDaysPer10M2,
     required double helperDaysPer10M2,
+    String productivityName = 'Editable Paint reference',
+    String productivityBasis =
+        'Editable labour coefficients for the specified Paint operation.',
   }) {
     final takeoff = OpeningCalculator.calculate(
       grossArea: grossArea,
@@ -44,6 +46,8 @@ class PaintCalculator {
       standard: PaintProductivity.siteSpecific(
         painterDaysPer10M2: painterDaysPer10M2,
         helperDaysPer10M2: helperDaysPer10M2,
+        name: productivityName,
+        basis: productivityBasis,
       ),
       crew: crew,
     );
@@ -76,6 +80,10 @@ class PaintCalculator {
   ) {
     EstimateValidation.count(input.coats, '${input.kind.label} coats');
     EstimateValidation.number(input.coverage, '${input.kind.label} coverage');
+    EstimateValidation.count(
+      input.effectiveCoverageCoats,
+      '${input.kind.label} reference coats',
+    );
     if (input.puttyPackSizeKg != null) {
       if (input.kind != PaintMaterialKind.putty) {
         throw ArgumentError('Pack size is only supported for putty.');
@@ -87,12 +95,10 @@ class PaintCalculator {
       '${input.kind.label} wastage',
       allowZero: true,
     );
-    final base =
-        input.kind == PaintMaterialKind.putty &&
-            input.puttyCoverageBasis == PuttyCoverageBasis.completeTwoCoats
-        ? netArea * input.coats / 2 / input.coverage
-        : input.kind.coverageIsConsumption
+    final base = input.kind.coverageIsConsumption
         ? netArea * input.coats * input.coverage
+        : input.effectiveCoverageBasis == PaintCoverageBasis.completeOperation
+        ? netArea * input.coats / input.effectiveCoverageCoats / input.coverage
         : netArea * input.coats / input.coverage;
     final finalQuantity = EstimateValidation.number(
       base * (1 + input.wastagePercent / 100),

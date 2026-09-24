@@ -50,7 +50,9 @@ class _PaintScreenState extends State<PaintScreen> {
   final _painterWage = TextEditingController();
   final _helperWage = TextEditingController();
   final _customPuttyPack = TextEditingController(text: '20');
-  PuttyCoverageBasis _puttyCoverageBasis = PuttyCoverageBasis.completeTwoCoats;
+  PuttyCoverageBasis _puttyCoverageBasis = PuttyCoverageBasis.perCoat;
+  final _coverageBasis = <PaintMaterialKind, PaintCoverageBasis>{};
+  final _coverageCoats = <PaintMaterialKind, int>{};
   int? _puttyPackPreset = 20;
   final _materialControllers = {
     for (final kind in PaintMaterialKind.values) kind: _MaterialControllers(),
@@ -106,6 +108,8 @@ class _PaintScreenState extends State<PaintScreen> {
       controllers.coverage.text = value.coverage.toString();
       controllers.wastage.text = value.wastagePercent.toString();
       controllers.rate.text = value.rate.toString();
+      _coverageBasis[entry.key] = value.coverageBasis;
+      _coverageCoats[entry.key] = value.coverageCoats;
       if (entry.key == PaintMaterialKind.putty) {
         _puttyCoverageBasis = value.puttyCoverageBasis;
         _puttyPackPreset = value.puttyPackSizeKg?.toInt();
@@ -175,6 +179,18 @@ class _PaintScreenState extends State<PaintScreen> {
           '${kind.label} wastage',
         ),
         rate: _number(_materialControllers[kind]!.rate, '${kind.label} rate'),
+        coverageBasis: _coverageBasis[kind] ?? PaintCoverageBasis.perCoat,
+        coverageCoats: _coverageCoats[kind] ?? 1,
+        referenceLabel: _customProduct
+            ? 'Custom Product'
+            : PaintReferenceDefaults.forWorkType(
+                _workType,
+              ).materials[kind]!.referenceLabel,
+        referenceNote: _customProduct
+            ? 'User-entered product/site values.'
+            : PaintReferenceDefaults.forWorkType(
+                _workType,
+              ).materials[kind]!.note,
         puttyCoverageBasis: kind == PaintMaterialKind.putty
             ? _puttyCoverageBasis
             : PuttyCoverageBasis.perCoat,
@@ -192,6 +208,12 @@ class _PaintScreenState extends State<PaintScreen> {
         grossArea: _grossArea(),
         openings: _openings,
         materials: _materials(),
+        productivityName: _customProduct
+            ? 'Custom Product / Site Productivity'
+            : PaintReferenceDefaults.forWorkType(_workType).productivityName,
+        productivityBasis: _customProduct
+            ? 'User-entered painter/helper days per 10 m².'
+            : PaintReferenceDefaults.forWorkType(_workType).labourNote,
         painterDaysPer10M2: _number(
           _painterCoefficient,
           'Painter productivity coefficient',
@@ -271,7 +293,7 @@ class _PaintScreenState extends State<PaintScreen> {
     initialValue: current,
     decoration: InputDecoration(labelText: label),
     items: [
-      for (final count in [1, 2, 3])
+      for (final count in [1, 2, 3, 4, 5])
         DropdownMenuItem(value: count, child: Text('$count')),
     ],
     onChanged: (value) {
@@ -315,30 +337,36 @@ class _PaintScreenState extends State<PaintScreen> {
                 unit: null,
                 useMeasurementSystem: false,
               ),
-            if (kind == PaintMaterialKind.putty && _customProduct)
-              DropdownButtonFormField<PuttyCoverageBasis>(
-                initialValue: _puttyCoverageBasis,
+            if (_customProduct && !kind.coverageIsConsumption) ...[
+              DropdownButtonFormField<PaintCoverageBasis>(
+                initialValue:
+                    _coverageBasis[kind] ?? PaintCoverageBasis.perCoat,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Putty coverage basis',
-                ),
+                decoration: InputDecoration(labelText: ' coverage basis'),
                 items: const [
                   DropdownMenuItem(
-                    value: PuttyCoverageBasis.completeTwoCoats,
-                    child: Text('Complete two-coat application'),
+                    value: PaintCoverageBasis.perCoat,
+                    child: Text('Per coat'),
                   ),
                   DropdownMenuItem(
-                    value: PuttyCoverageBasis.perCoat,
-                    child: Text('Per coat'),
+                    value: PaintCoverageBasis.completeOperation,
+                    child: Text('Complete selected operation'),
                   ),
                 ],
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => _puttyCoverageBasis = value);
+                    setState(() {
+                      _coverageBasis[kind] = value;
+                      _coverageCoats[kind] =
+                          value == PaintCoverageBasis.completeOperation
+                          ? int.tryParse(controllers.coats.text) ?? 1
+                          : 1;
+                    });
                   }
                 },
               ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
             if (_customProduct)
               DimensionInputField(
                 controller: controllers.wastage,
@@ -530,7 +558,7 @@ class _PaintScreenState extends State<PaintScreen> {
             ),
             const Text(
               'Duration uses the controlling role requirement. Crew is limited '
-              'to 1–3 people per role and assumes enough work fronts.',
+              'to 1–5 people per role and assumes enough work fronts.',
             ),
           ]),
           _card('Daily Wages', Icons.badge_outlined, [
