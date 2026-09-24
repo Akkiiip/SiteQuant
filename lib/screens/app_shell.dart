@@ -32,7 +32,9 @@ class _SiteQuantShellState extends State<SiteQuantShell> {
   void initState() {
     super.initState();
     QuizReminderService.navigationRequest.addListener(_openLearnFromReminder);
-    if (QuizReminderService.navigationRequest.value > 0) _index = 3;
+    if (QuizReminderService.navigationRequest.value > 0) {
+      _openLearnFromReminder();
+    }
   }
 
   @override
@@ -114,8 +116,10 @@ class _DashboardPageState extends State<_DashboardPage> {
   String query = '';
   @override
   Widget build(BuildContext context) {
-    final entries = _calculatorEntries
-        .take(8)
+    final source = query.trim().isEmpty
+        ? _calculatorEntries.take(8)
+        : _calculatorEntries;
+    final entries = source
         .where(
           (entry) =>
               entry.title.toLowerCase().contains(query.toLowerCase()) ||
@@ -200,16 +204,19 @@ class _DashboardPageState extends State<_DashboardPage> {
             itemCount: entries.length,
             itemBuilder: (context, index) {
               final entry = entries[index];
-              final kind = SiteQuantCalculatorIcon.kindFor(entry.title)!;
+              final kind = SiteQuantCalculatorIcon.kindFor(entry.title);
               return Card(
-                key: ValueKey('home-calculator-${kind.name}'),
+                key: ValueKey('home-calculator-${kind?.name ?? 'volume'}'),
                 child: InkWell(
                   onTap: () => entry.open(context),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 7),
                     child: Row(
                       children: [
-                        SiteQuantCalculatorIcon(kind: kind),
+                        if (kind == null)
+                          _IconTile(icon: entry.icon, color: entry.color)
+                        else
+                          SiteQuantCalculatorIcon(kind: kind),
                         const SizedBox(width: 7),
                         Expanded(
                           child: Column(
@@ -432,16 +439,19 @@ class _ToolsPage extends StatelessWidget {
         Icons.straighten_rounded,
         'Unit Converter',
         'Length, area, volume, weight',
-        () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const UnitConverterScreen()),
-        ),
+        () {
+          AnalyticsService.logCalculatorOpened('unit_converter');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const UnitConverterScreen()),
+          );
+        },
       ),
       _tool(
         context,
         Icons.request_quote_outlined,
         'Rate Analysis',
-        'Material and labour rates',
+        'Coming soon',
         null,
       ),
       _tool(
@@ -455,7 +465,7 @@ class _ToolsPage extends StatelessWidget {
         context,
         Icons.account_tree_outlined,
         'Project Tracker',
-        'Track quantities',
+        'Coming soon',
         null,
       ),
     ],
@@ -475,7 +485,8 @@ Widget _tool(
       leading: _IconTile(icon: i, color: AppTheme.primaryBlue),
       title: Text(t),
       subtitle: Text(s),
-      trailing: const Icon(Icons.chevron_right_rounded),
+      trailing: tap == null ? null : const Icon(Icons.chevron_right_rounded),
+      enabled: tap != null,
       onTap: tap,
     ),
   ),
@@ -512,33 +523,30 @@ class _ProfilePage extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           ),
           subtitle: const Text(
-            'Unlock advanced tools, BOQ and BBS',
+            'Coming soon',
             style: TextStyle(color: Colors.white70),
           ),
-          trailing: const Icon(Icons.chevron_right, color: Colors.white),
         ),
       ),
       const SizedBox(height: 14),
-      ...[
-        'Saved Calculations',
-        'My Projects',
-        'Rate Library',
-        'Help & Support',
-        'Share SiteQuant',
-        'About',
-        'Settings',
-      ].map(
+      ...['Saved Calculations', 'My Projects', 'Rate Library'].map(
         (label) => Card(
           child: ListTile(
-            leading: const Icon(Icons.chevron_right_rounded),
+            leading: const Icon(Icons.lock_clock_outlined),
             title: Text(label),
-            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
-            onTap: label == 'Settings'
-                ? () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  )
-                : null,
+            subtitle: const Text('Coming soon'),
+            enabled: false,
+          ),
+        ),
+      ),
+      Card(
+        child: ListTile(
+          leading: const Icon(Icons.settings_outlined),
+          title: const Text('Settings, support & about'),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsScreen()),
           ),
         ),
       ),
@@ -685,10 +693,10 @@ final _calculatorEntries = <_CalculatorEntry>[
     Icons.grid_on_rounded,
     AppTheme.primaryBlue,
     2,
-    (c) => Navigator.push(
-      c,
-      MaterialPageRoute(builder: (_) => const TileScreen()),
-    ),
+    (c) {
+      AnalyticsService.logCalculatorOpened('tiles');
+      Navigator.push(c, MaterialPageRoute(builder: (_) => const TileScreen()));
+    },
   ),
   _CalculatorEntry(
     'Shuttering Calculator',
@@ -697,6 +705,7 @@ final _calculatorEntries = <_CalculatorEntry>[
     AppTheme.navy,
     1,
     (c) {
+      AnalyticsService.logCalculatorOpened('shuttering');
       Navigator.push(
         c,
         MaterialPageRoute(builder: (_) => const ShutteringScreen()),
@@ -710,6 +719,7 @@ final _calculatorEntries = <_CalculatorEntry>[
     AppTheme.primaryBlue,
     1,
     (c) {
+      AnalyticsService.logCalculatorOpened('water_tank');
       Navigator.push(
         c,
         MaterialPageRoute(builder: (_) => const WaterTankScreen()),

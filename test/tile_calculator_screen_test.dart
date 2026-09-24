@@ -79,7 +79,7 @@ void main() {
     await tester.tap(find.text('Calculate Tiles & Flooring').last);
     await tester.pumpAndSettle();
     expect(find.byType(TileResultScreen), findsOneWidget);
-    expect(logger.names, contains('calculator_opened'));
+    expect(logger.names, isNot(contains('calculator_opened')));
     expect(logger.names, contains('calculation_completed'));
     final event = logger.names.indexOf('calculation_completed');
     expect(logger.parameters[event], {

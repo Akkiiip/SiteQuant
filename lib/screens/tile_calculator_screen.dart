@@ -85,7 +85,6 @@ class _TileCalculatorScreenState extends State<TileCalculatorScreen> {
     _type = widget.type;
     _system = MeasurementPreferences.system.value ?? MeasurementSystem.metric;
     _applyReference();
-    AnalyticsService.logCalculatorOpened('tiles');
   }
 
   void _applyReference() {
