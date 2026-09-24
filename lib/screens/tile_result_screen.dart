@@ -12,7 +12,7 @@ class TileResultScreen extends StatelessWidget {
 
   String _n(double value, [int precision = 2]) =>
       EstimateFormat.number(value, precision);
-  String _money(double value) => '₹${_n(value)}';
+  String _money(double value) => '₹${_n(value, 0)}';
   Widget _row(String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: Row(
@@ -81,7 +81,7 @@ class TileResultScreen extends StatelessWidget {
               'Crew',
               '${p.crew[LabourRole.tileMason]} Tile Mason(s) + ${p.crew[LabourRole.helper]} Helper(s)',
             ),
-            _row('Working Days', '${_n(p.workingDays)} days'),
+            _row('Working Days', '${_n(p.workingDays, 1)} days'),
             _row('Labour Cost', _money(labour.totalCost)),
           ]),
           _section('TOTAL COST', [
@@ -102,27 +102,6 @@ class TileResultScreen extends StatelessWidget {
               ],
             ),
           ),
-          Card(
-            child: ExpansionTile(
-              title: const Text('Labour & Time Details'),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              children: [
-                _row(
-                  'Tile Mason mandays',
-                  _n(p.mandays[LabourRole.tileMason]!),
-                ),
-                _row('Helper mandays', _n(p.mandays[LabourRole.helper]!)),
-                _row(
-                  'Tile Mason wage',
-                  '${_money(labour.dailyWages[LabourRole.tileMason]!)} / day',
-                ),
-                _row(
-                  'Helper wage',
-                  '${_money(labour.dailyWages[LabourRole.helper]!)} / day',
-                ),
-              ],
-            ),
-          ),
           CalculationDetails(
             children: [
               _row('Work Type', result.workType.label),
@@ -137,6 +116,19 @@ class TileResultScreen extends StatelessWidget {
               _row('Tile Area', '${_n(result.tileAreaSquareMetres, 4)} m²'),
               _row('Reference Productivity', p.standard.name),
               Text(p.standard.basis),
+              _row(
+                'Tile Mason mandays',
+                _n(p.mandays[LabourRole.tileMason]!, 1),
+              ),
+              _row('Helper mandays', _n(p.mandays[LabourRole.helper]!, 1)),
+              _row(
+                'Tile Mason wage',
+                '${_money(labour.dailyWages[LabourRole.tileMason]!)} / day',
+              ),
+              _row(
+                'Helper wage',
+                '${_money(labour.dailyWages[LabourRole.helper]!)} / day',
+              ),
               Text(result.referenceNote),
             ],
           ),

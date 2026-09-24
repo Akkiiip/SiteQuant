@@ -49,11 +49,16 @@ void main() {
       expect(find.text('31 pieces'), findsOneWidget);
       expect(find.text('LABOUR & TIME'), findsOneWidget);
       expect(find.text('TOTAL COST'), findsOneWidget);
+      expect(find.text('Labour & Time Details'), findsNothing);
+      expect(find.text('Tile Mason mandays'), findsNothing);
       await tester.scrollUntilVisible(find.text('Calculation Details'), 250);
       await tester.tap(find.text('Calculation Details'));
       await tester.pumpAndSettle();
       expect(find.text('Gross Area'), findsOneWidget);
       expect(find.text('Base Pieces'), findsOneWidget);
+      expect(find.text('Tile Mason mandays'), findsOneWidget);
+      expect(find.text('Helper mandays'), findsOneWidget);
+      expect(find.textContaining('.00'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

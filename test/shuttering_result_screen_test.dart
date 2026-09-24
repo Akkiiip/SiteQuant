@@ -56,6 +56,8 @@ void main() {
       await t.tap(title);
       await t.pumpAndSettle();
       expect(find.text('Carpenter mandays'), findsNothing);
+      await t.ensureVisible(find.text('Edit Calculation'));
+      expect(find.text('Edit Calculation'), findsOneWidget);
       expect(t.takeException(), isNull);
     },
   );

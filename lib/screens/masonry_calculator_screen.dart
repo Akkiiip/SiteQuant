@@ -132,11 +132,15 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
     final t = value(thickness, 'wall thickness');
     final gross = directArea ? value(area, 'wall area') : _dimensionArea(q);
     if (q == null || q < 1 || t == null || gross == null) {
+      AnalyticsService.logCalculationError('masonry', 'invalid_input');
       message('Quantity must be at least 1.');
       return;
     }
     final selectedUnitSize = _selectedUnitSize();
-    if (selectedUnitSize == null) return;
+    if (selectedUnitSize == null) {
+      AnalyticsService.logCalculationError('masonry', 'invalid_input');
+      return;
+    }
     try {
       final r = MasonryV2Calculator.calculate(
         MasonryInput(
@@ -168,6 +172,7 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
         MaterialPageRoute(builder: (_) => MasonryV2ResultScreen(result: r)),
       );
     } catch (e) {
+      AnalyticsService.logCalculationError('masonry', 'invalid_input');
       message(e.toString().replaceFirst('Invalid argument(s): ', ''));
     }
   }
@@ -279,6 +284,12 @@ class _MasonryCalculatorScreenState extends State<MasonryCalculatorScreen> {
           children: [
             const Text('Material & Labour Settings'),
             const SizedBox(height: 8),
+            const Text('Reference values — editable'),
+            const SizedBox(height: 4),
+            const Text(
+              'Estimating defaults only. Verify rates, wages, wastage and productivity for your project and location.',
+            ),
+            const SizedBox(height: 12),
             field(rate, 'Material rate', '₹ / unit'),
             field(cementRate, 'Cement rate', '₹ / bag'),
             field(sandRate, 'Sand rate', '₹ / m³'),

@@ -9,7 +9,8 @@ import '../services/shuttering_reference_defaults.dart';
 class ShutteringResultScreen extends StatelessWidget {
   final ShutteringResult result;
   const ShutteringResultScreen({super.key, required this.result});
-  String _n(double v) => EstimateFormat.number(v, 2);
+  String _n(double v, [int precision = 2]) =>
+      EstimateFormat.number(v, precision);
   String _money(double v) {
     final whole = EstimateFormat.number(v, 0);
     return '₹${whole.replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}';
@@ -87,7 +88,7 @@ class ShutteringResultScreen extends StatelessWidget {
               ]),
               _card('Labour & Time', [
                 _row('Crew', crew),
-                _row('Working Days', '${_n(p.workingDays)} days'),
+                _row('Working Days', '${_n(p.workingDays, 1)} days'),
                 _row('Labour Cost', _money(l.totalCost)),
               ]),
               Card(
@@ -137,7 +138,7 @@ class ShutteringResultScreen extends StatelessWidget {
                       ),
                       _row(
                         '${role == LabourRole.helper ? 'Helper' : role.label} mandays',
-                        _n(p.mandays[role]!),
+                        _n(p.mandays[role]!, 1),
                       ),
                       _row(
                         '${role == LabourRole.helper ? 'Helper' : role.label} wage',
@@ -158,6 +159,12 @@ class ShutteringResultScreen extends StatelessWidget {
                     Text(ShutteringReferenceDefaults.standard.note),
                   ],
                 ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edit Calculation'),
               ),
             ],
           ),

@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/masonry_input.dart';
 import '../models/masonry_result.dart';
 import '../models/productivity_standard.dart';
+import '../services/estimate_format.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/calculator_ui.dart';
 
 class MasonryV2ResultScreen extends StatelessWidget {
   final MasonryEstimateResult result;
   const MasonryV2ResultScreen({super.key, required this.result});
-  String n(double v, [int d = 2]) => v.toStringAsFixed(d);
-  String money(double v) => '₹${v.toStringAsFixed(0)}';
+  String n(double v, [int d = 2]) => EstimateFormat.number(v, d);
+  String money(double v) => '₹${EstimateFormat.number(v, 0)}';
   @override
   Widget build(BuildContext context) {
     final t = result.takeoff;
@@ -83,7 +84,7 @@ class MasonryV2ResultScreen extends StatelessWidget {
                     'Crew',
                     '${result.input.masons} Mason + ${result.input.helpers} Helper',
                   ),
-                  row('Working Days', '${n(p.workingDays)} days'),
+                  row('Working Days', '${n(p.workingDays, 1)} days'),
                   row('Labour Cost', money(l.totalCost)),
                 ],
               ),
@@ -97,13 +98,19 @@ class MasonryV2ResultScreen extends StatelessWidget {
               row('Wall volume', '${n(t.masonryVolume)} m³'),
               row('Unit size', result.input.unitSize.displayLabel),
               row('Wastage', '${n(result.input.wastagePercent)}%'),
-              row('Mason mandays', n(p.mandays[LabourRole.mason] ?? 0)),
-              row('Helper mandays', n(p.mandays[LabourRole.helper] ?? 0)),
+              row('Mason mandays', n(p.mandays[LabourRole.mason] ?? 0, 1)),
+              row('Helper mandays', n(p.mandays[LabourRole.helper] ?? 0, 1)),
               row(
                 'Reference note',
                 'Reference values are editable; verify locally.',
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Edit Calculation'),
           ),
         ],
       ),

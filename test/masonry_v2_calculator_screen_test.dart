@@ -53,6 +53,8 @@ void main() {
       expect(find.text('Advanced Options'), findsOneWidget);
       await tester.tap(find.text('Advanced Options'));
       await tester.pumpAndSettle();
+      expect(find.text('Reference values — editable'), findsOneWidget);
+      expect(find.textContaining('Estimating defaults only'), findsOneWidget);
       expect(find.byKey(const Key('Material rate')), findsOneWidget);
       await tester.enterText(find.byKey(const Key('Material rate')), '25');
       await tester.pumpAndSettle();

@@ -59,6 +59,8 @@ void main() {
       await tester.tap(find.text('Calculation Details'));
       await tester.pumpAndSettle();
       expect(find.text('Mason mandays'), findsOneWidget);
+      await tester.ensureVisible(find.text('Edit Calculation'));
+      expect(find.text('Edit Calculation'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

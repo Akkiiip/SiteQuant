@@ -191,6 +191,28 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
             ),
             const SizedBox(height: 16),
             Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: TextField(
+                  controller: _valueController,
+                  onChanged: (_) => setState(() {}),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Enter Value',
+                    suffixText: _fromUnit.label,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
               color: colors.primaryContainer,
               elevation: 2,
               child: Padding(
@@ -267,28 +289,6 @@ class _UnitConverterScreenState extends State<UnitConverterScreen> {
                       ],
                     ),
                   ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: TextField(
-                  controller: _valueController,
-                  onChanged: (_) => setState(() {}),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                  ],
-                  decoration: InputDecoration(
-                    labelText: 'Enter Value',
-                    suffixText: _fromUnit.label,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                  ),
                 ),
               ),
             ),

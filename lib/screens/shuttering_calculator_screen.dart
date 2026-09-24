@@ -138,6 +138,7 @@ class _ShutteringCalculatorScreenState
   void _calculate() {
     setState(() => _error = null);
     if (!_form.currentState!.validate()) {
+      AnalyticsService.logCalculationError('shuttering', 'invalid_input');
       return;
     }
     try {
@@ -171,6 +172,7 @@ class _ShutteringCalculatorScreenState
         ),
       );
     } on ArgumentError {
+      AnalyticsService.logCalculationError('shuttering', 'invalid_input');
       setState(
         () => _error =
             'Check the dimensions, quantity and material/labour settings. Use finite values within a practical range.',

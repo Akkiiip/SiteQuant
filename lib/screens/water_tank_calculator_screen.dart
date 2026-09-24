@@ -113,7 +113,10 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
         },
       );
   void _calculate() {
-    if (!_form.currentState!.validate()) return;
+    if (!_form.currentState!.validate()) {
+      AnalyticsService.logCalculationError('water_tank', 'invalid_input');
+      return;
+    }
     try {
       final diameter = _circular ? _metres('Diameter') : 0.0;
       final input = WaterTankInput(
@@ -146,6 +149,7 @@ class _WaterTankCalculatorScreenState extends State<WaterTankCalculatorScreen> {
         ),
       );
     } on ArgumentError {
+      AnalyticsService.logCalculationError('water_tank', 'invalid_input');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Check the dimensions and material/labour settings.'),

@@ -9,7 +9,8 @@ import '../services/estimate_format.dart';
 class WaterTankResultScreen extends StatelessWidget {
   const WaterTankResultScreen({super.key, required this.result});
   final WaterTankResult result;
-  String _number(double value) => EstimateFormat.number(value, 2);
+  String _number(double value, [int precision = 2]) =>
+      EstimateFormat.number(value, precision);
   String _money(double value) => '₹${EstimateFormat.number(value, 0)}';
   Widget _row(String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 7),
@@ -94,7 +95,7 @@ class WaterTankResultScreen extends StatelessWidget {
                   'Crew',
                   '${p.crew[LabourRole.mason]} Mason + ${p.crew[LabourRole.helper]} Helper',
                 ),
-                _row('Working Days', '${_number(p.workingDays)} days'),
+                _row('Working Days', '${_number(p.workingDays, 1)} days'),
                 _row('Labour Cost', _money(labour.totalCost)),
               ]),
               Card(
@@ -129,11 +130,11 @@ class WaterTankResultScreen extends StatelessWidget {
                     ),
                     _row(
                       'Mason mandays',
-                      _number(p.mandays[LabourRole.mason]!),
+                      _number(p.mandays[LabourRole.mason]!, 1),
                     ),
                     _row(
                       'Helper mandays',
-                      _number(p.mandays[LabourRole.helper]!),
+                      _number(p.mandays[LabourRole.helper]!, 1),
                     ),
                     _row(
                       'Controlling role',
@@ -142,6 +143,12 @@ class WaterTankResultScreen extends StatelessWidget {
                     Text(p.standard.basis),
                   ],
                 ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edit Calculation'),
               ),
             ],
           ),

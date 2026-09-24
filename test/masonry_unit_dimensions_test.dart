@@ -4,10 +4,21 @@ import 'package:site_quant/models/masonry_input.dart';
 import 'package:site_quant/models/masonry_result.dart';
 import 'package:site_quant/screens/masonry_calculator_screen.dart';
 import 'package:site_quant/screens/masonry_v2_result_screen.dart';
+import 'package:site_quant/services/analytics_service.dart';
 import 'package:site_quant/services/masonry_reference_defaults.dart';
 import 'package:site_quant/services/masonry_v2_calculator.dart';
 
+class _Logger implements AnalyticsEventLogger {
+  final names = <String>[];
+  @override
+  Future<void> logEvent({
+    required String name,
+    Map<String, Object>? parameters,
+  }) async => names.add(name);
+}
+
 void main() {
+  tearDown(AnalyticsService.resetLoggerForTesting);
   testWidgets('each masonry type displays its existing standard dimensions', (
     tester,
   ) async {
@@ -107,10 +118,24 @@ void main() {
     );
     expect(screen.result.takeoff.unitCount, isNot(standard.takeoff.unitCount));
     expect(screen.result.materialCost, isNot(standard.materialCost));
+    await tester.scrollUntilVisible(find.text('Edit Calculation'), 300);
+    await tester.tap(find.text('Edit Calculation'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MasonryCalculatorScreen), findsOneWidget);
+    expect(find.byKey(const Key('Unit length')), findsOneWidget);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('Unit length')))
+          .controller!
+          .text,
+      '250',
+    );
   });
 
   for (final invalid in ['0', '-1', 'not-a-number']) {
     testWidgets('custom unit length rejects $invalid', (tester) async {
+      final logger = _Logger();
+      AnalyticsService.setLoggerForTesting(logger);
       await tester.binding.setSurfaceSize(const Size(800, 1200));
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(
@@ -131,6 +156,10 @@ void main() {
 
       expect(find.byType(MasonryV2ResultScreen), findsNothing);
       expect(find.text('Enter a valid unit length.'), findsOneWidget);
+      expect(
+        logger.names.where((name) => name == 'calculation_error'),
+        hasLength(1),
+      );
     });
   }
 

@@ -3,8 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:site_quant/models/water_tank_input.dart';
 import 'package:site_quant/screens/water_tank_calculator_screen.dart';
 import 'package:site_quant/screens/water_tank_result_screen.dart';
+import 'package:site_quant/services/analytics_service.dart';
 import 'package:site_quant/theme/app_theme.dart';
 import 'package:site_quant/widgets/water_tank_diagram.dart';
+
+class _Logger implements AnalyticsEventLogger {
+  final names = <String>[];
+  @override
+  Future<void> logEvent({
+    required String name,
+    Map<String, Object>? parameters,
+  }) async => names.add(name);
+}
 
 Future<void> enter(WidgetTester tester, String key, String value) async {
   final field = find.byKey(ValueKey(key));
@@ -31,6 +41,7 @@ Future<void> fillValid(WidgetTester tester, WaterTankType type) async {
 }
 
 void main() {
+  tearDown(AnalyticsService.resetLoggerForTesting);
   for (final type in WaterTankType.values) {
     testWidgets('${type.name} calculator renders, validates and calculates', (
       tester,
@@ -65,6 +76,19 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.byType(WaterTankResultScreen), findsOneWidget);
+      if (type == WaterTankType.rectangular) {
+        await tester.scrollUntilVisible(find.text('Edit Calculation'), 300);
+        await tester.tap(find.text('Edit Calculation'));
+        await tester.pumpAndSettle();
+        expect(find.byType(WaterTankCalculatorScreen), findsOneWidget);
+        expect(
+          tester
+              .widget<TextFormField>(find.byKey(const ValueKey('Length')))
+              .controller!
+              .text,
+          '4',
+        );
+      }
       expect(tester.takeException(), isNull);
     });
   }
@@ -72,6 +96,8 @@ void main() {
   testWidgets('invalid dimensions and quantity stay on input with feedback', (
     tester,
   ) async {
+    final logger = _Logger();
+    AnalyticsService.setLoggerForTesting(logger);
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.lightTheme,
@@ -87,5 +113,9 @@ void main() {
     expect(find.byType(WaterTankResultScreen), findsNothing);
     expect(find.textContaining('Enter a valid'), findsWidgets);
     expect(find.text('Quantity must be at least 1.'), findsOneWidget);
+    expect(
+      logger.names.where((name) => name == 'calculation_error'),
+      hasLength(1),
+    );
   });
 }
