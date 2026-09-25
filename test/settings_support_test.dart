@@ -5,6 +5,24 @@ import 'package:site_quant/screens/contact_developer_screen.dart';
 import 'package:site_quant/services/support_actions.dart';
 
 void main() {
+  testWidgets('Settings and About display the release version', (t) async {
+    await t.pumpWidget(const MaterialApp(home: SettingsScreen()));
+
+    expect(find.text('v2.0.0'), findsOneWidget);
+
+    await t.tap(find.text('About SiteQuant'));
+    await t.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.textContaining('v2.0.0'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('v1.0.0'), findsNothing);
+  });
+
   test('rate prefers native listing and falls back on false or exception', () async {
     for (final throws in [false, true]) {
       final urls = <Uri>[];

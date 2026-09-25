@@ -10,12 +10,18 @@ import 'contact_developer_screen.dart';
 import '../services/support_actions.dart';
 
 class SettingsScreen extends StatelessWidget {
+  static const defaultVersion = '2.0.0';
   static final Uri _privacyPolicyUri = Uri.parse(
     'https://sites.google.com/view/sitequantprivacypolicy/home',
   );
 
   final SupportActions supportActions;
-  const SettingsScreen({super.key, this.supportActions = const SupportActions()});
+  final String version;
+  const SettingsScreen({
+    super.key,
+    this.supportActions = const SupportActions(),
+    this.version = defaultVersion,
+  });
 
   Future<void> _rate(BuildContext context) async {
     final opened = await supportActions.rate();
@@ -41,8 +47,8 @@ class SettingsScreen extends StatelessWidget {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('SiteQuant'),
-      content: const Text(
-        'SiteQuant is a civil engineering toolkit designed to help engineers, contractors, students and site supervisors perform everyday construction calculations quickly and accurately.\n\nv1.0.0',
+      content: Text(
+        'SiteQuant is a civil engineering toolkit designed to help engineers, contractors, students and site supervisors perform everyday construction calculations quickly and accurately.\n\nv$version',
       ),
       actions: [
         TextButton(
@@ -131,10 +137,10 @@ class SettingsScreen extends StatelessWidget {
               },
             ),
 
-            const _Tile(
+            _Tile(
               icon: Icons.info_rounded,
               title: 'Version',
-              subtitle: 'v1.0.0',
+              subtitle: 'v$version',
             ),
           ],
         ),
